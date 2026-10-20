@@ -98,14 +98,14 @@ export function renderLoginPage(onSuccess) {
         // Acceso Administrador con estación por defecto
         setUserSession(BUSINESSES[0].id, 'admin');
         window.location.hash = '#dashboard';
-        onSuccess();
+        if (typeof onSuccess === 'function') onSuccess();
       } else {
         const business = BUSINESSES.find(b => b.pin === currentPin);
         if (business) {
           // Acceso Operador / Punto de Venta directo a meter contadores
           setUserSession(business.id, 'operator');
           window.location.hash = '#register';
-          onSuccess();
+          if (typeof onSuccess === 'function') onSuccess();
         } else {
           display.classList.add('shake');
           setTimeout(() => {

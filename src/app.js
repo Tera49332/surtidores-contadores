@@ -79,35 +79,36 @@ export function initApp() {
     }
   }
 
+  let currentRouteToken = 0;
+
   async function route() {
+    const routeToken = ++currentRouteToken;
     let hash = window.location.hash || '#dashboard';
     
     // Auth check
     const auth = isAuthenticated();
     if (!auth && hash !== '#login') {
-      window.location.hash = '#login';
+      if (window.location.hash !== '#login') {
+        window.location.hash = '#login';
+      }
       return;
     }
     
     // Protección de rutas: el operador solo puede estar en #register o #login
     if (auth && isOperator() && hash !== '#register') {
-      window.location.hash = '#register';
+      if (window.location.hash !== '#register') {
+        window.location.hash = '#register';
+      }
       return;
     }
     
     updateNav(hash);
-    appContainer.innerHTML = ''; // Clear current page
-    
-    // Smooth transition simulation
-    appContainer.style.opacity = 0;
     
     let pageElement = null;
     
     switch (hash) {
       case '#login':
-        pageElement = renderLoginPage(() => {
-          window.location.hash = '#dashboard';
-        });
+        pageElement = renderLoginPage();
         break;
       case '#dashboard':
         pageElement = await renderDashboard();
@@ -126,13 +127,16 @@ export function initApp() {
         return;
     }
     
+    // Si ha entrado otra navegación mientras se resolvía la página asíncrona, descartar
+    if (routeToken !== currentRouteToken) {
+      return;
+    }
+
+    // Limpiar el contenedor y montar la página nueva para evitar cualquier duplicidad
+    appContainer.innerHTML = '';
     if (pageElement) {
       appContainer.appendChild(pageElement);
-      // Fade in
-      setTimeout(() => {
-        appContainer.style.transition = 'opacity 0.3s ease';
-        appContainer.style.opacity = 1;
-      }, 50);
+      appContainer.style.opacity = 1;
     }
   }
 
