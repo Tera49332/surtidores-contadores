@@ -1,8 +1,11 @@
-const CACHE_NAME = 'klin-tera-v3';
+const CACHE_NAME = 'surtidores-repsol-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/apple-touch-icon.png',
 ];
 
 // Install: cache core assets
