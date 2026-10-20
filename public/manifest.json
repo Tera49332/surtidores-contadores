@@ -1,0 +1,19 @@
+{
+  "name": "Control de Contadores - Surtidores",
+  "short_name": "Surtidores",
+  "description": "Control y seguimiento de totalizadores de surtidores de combustible",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0f4f8",
+  "theme_color": "#0d47a1",
+  "orientation": "portrait",
+  "categories": ["business", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

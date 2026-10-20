@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Light Theme Colors - inspired by KLIN logo */
+  --bg-dark: #f0f4f8;
+  --bg-card: #ffffff;
+  --bg-card-hover: #e8eef4;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+
+  --accent-primary: #005B8E;
+  --accent-primary-dark: #004A73;
+  --accent-primary-light: #0077B6;
+  --accent-primary-glow: rgba(0, 91, 142, 0.25);
+  --accent-secondary: #E8761A;
+  --accent-secondary-dark: #D06515;
+  --accent-secondary-glow: rgba(232, 118, 26, 0.25);
+
+  /* Legacy aliases for compatibility */
+  --accent-cyan: var(--accent-primary);
+  --accent-cyan-dark: var(--accent-primary-dark);
+  --accent-cyan-glow: var(--accent-primary-glow);
+
+  --success: #2E7D32;
+  --success-glow: rgba(46, 125, 50, 0.15);
+  --warning: #F9A825;
+  --error: #D32F2F;
+  --error-glow: rgba(211, 47, 47, 0.15);
+
+  --text-main: #1a2332;
+  --text-muted: #546e7a;
+  --text-dim: #90a4ae;
+
+  /* Borders & overlays */
+  --border-color: rgba(0, 50, 80, 0.12);
+  --border-light: rgba(0, 50, 80, 0.06);
+  --hover-bg: rgba(0, 91, 142, 0.06);
+  --nav-bg: rgba(255, 255, 255, 0.92);
+  --bg-readonly: rgba(0, 0, 0, 0.04);
+  --overlay-bg: rgba(0, 0, 0, 0.35);
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #005B8E, #0077B6);
+  --gradient-secondary: linear-gradient(135deg, #E8761A, #F09030);
+  --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,244,248,0.9));
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows - softer for light theme */
+  --shadow-sm: 0 1px 3px rgba(0,50,80,0.08), 0 1px 2px rgba(0,50,80,0.06);
+  --shadow-md: 0 4px 12px rgba(0,50,80,0.10);
+  --shadow-lg: 0 8px 24px rgba(0,50,80,0.12);
+  --shadow-glow: 0 4px 16px var(--accent-primary-glow);
+  --shadow-glow-active: 0 4px 24px var(--accent-primary-glow);
+
+  /* Typography */
+  --font-xs: 0.75rem;
+  --font-sm: 0.875rem;
+  --font-base: 1rem;
+  --font-lg: 1.125rem;
+  --font-xl: 1.25rem;
+  --font-2xl: 1.5rem;
+  --font-3xl: 1.875rem;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* ================= LOGIN DARK OVERRIDE ================= */
+.login-page {
+  --bg-dark: #0a0e17;
+  --bg-card: #111827;
+  --bg-card-hover: #1a2332;
+  --bg-glass: rgba(17, 24, 39, 0.7);
+
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --nav-bg: rgba(10, 14, 23, 0.85);
+  --bg-readonly: rgba(0, 0, 0, 0.3);
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 16px rgba(0,0,0,0.5);
+
+  --gradient-card: linear-gradient(145deg, rgba(26, 35, 50, 0.8), rgba(17, 24, 39, 0.9));
+}
+
+/* ================= CSS Reset & Global Styles ================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--text-dim);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ================= Utilities ================= */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.text-muted { color: var(--text-muted); }
+.text-dim { color: var(--text-dim); }
+.text-cyan { color: var(--accent-primary); }
+.text-success { color: var(--success); }
+.text-error { color: var(--error); }
+
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+
+.grid { display: grid; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+
+.hide { display: none !important; }
