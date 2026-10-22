@@ -179,8 +179,13 @@ export async function renderReportPage() {
       return;
     }
 
-    generateExcelReport(filtered, sVal ? new Date(sVal) : null, eVal ? new Date(eVal) : null);
-    showToast('Informe Excel (.xlsx) generado correctamente', 'success');
+    try {
+      generateExcelReport(filtered, sVal ? new Date(sVal) : null, eVal ? new Date(eVal) : null);
+      showToast('Informe Excel (.xlsx) generado correctamente', 'success');
+    } catch (err) {
+      console.error('Error al generar Excel:', err);
+      showToast(`Error al generar Excel: ${err.message}`, 'error');
+    }
   });
 
   btnGeneratePdf.addEventListener('click', () => {
@@ -191,8 +196,13 @@ export async function renderReportPage() {
       return;
     }
 
-    generatePdfReport(filtered, sVal ? new Date(sVal) : null, eVal ? new Date(eVal) : null);
-    showToast('Informe PDF generado', 'success');
+    try {
+      generatePdfReport(filtered, sVal ? new Date(sVal) : null, eVal ? new Date(eVal) : null);
+      showToast('Informe PDF generado', 'success');
+    } catch (err) {
+      console.error('Error al generar PDF:', err);
+      showToast(`Error al generar PDF: ${err.message}`, 'error');
+    }
   });
 
   updatePreview();

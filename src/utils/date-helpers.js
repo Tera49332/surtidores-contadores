@@ -1,37 +1,45 @@
 export function formatDate(date) {
   if (!date) return '';
+  const d = date instanceof Date ? date : new Date(date);
+  if (isNaN(d.getTime())) return '';
   return new Intl.DateTimeFormat('es-ES', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
-  }).format(date);
+  }).format(d);
 }
 
 export function formatDateTime(date) {
   if (!date) return '';
+  const d = date instanceof Date ? date : new Date(date);
+  if (isNaN(d.getTime())) return '';
   return new Intl.DateTimeFormat('es-ES', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  }).format(date);
+  }).format(d);
 }
 
 export function formatDateShort(date) {
   if (!date) return '';
+  const d = date instanceof Date ? date : new Date(date);
+  if (isNaN(d.getTime())) return '';
   return new Intl.DateTimeFormat('es-ES', {
     day: '2-digit',
     month: 'short'
-  }).format(date);
+  }).format(d);
 }
 
 export function formatTime(date) {
   if (!date) return '';
+  const d = date instanceof Date ? date : new Date(date);
+  if (isNaN(d.getTime())) return '';
   return new Intl.DateTimeFormat('es-ES', {
     hour: '2-digit',
     minute: '2-digit'
-  }).format(date);
+  }).format(d);
 }
 
 export function getWeekRange(date = new Date()) {

@@ -171,7 +171,8 @@ export function exportSingleReadingExcel(curr, prev, servicesDef, businessName) 
   ];
   XLSX.utils.book_append_sheet(wb, ws, 'Lectura');
 
-  const fileDate = curr.date.slice(0, 10);
+  const dateObj = curr.date instanceof Date ? curr.date : new Date(curr.date);
+  const fileDate = !isNaN(dateObj.getTime()) ? dateObj.toISOString().slice(0, 10) : 'fecha';
   const cleanName = businessName.replace(/[^a-zA-Z0-9]/g, '_');
   XLSX.writeFile(wb, `Lectura_Repsol_${cleanName}_${fileDate}.xlsx`);
 }

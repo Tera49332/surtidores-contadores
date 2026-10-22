@@ -230,15 +230,26 @@ export async function renderHistoryPage() {
       const btnExcel = card.querySelector('.btn-excel');
       btnExcel.addEventListener('click', (e) => {
         e.stopPropagation();
-        exportSingleReadingExcel(reading, prevReading, servicesDef, businessName);
-        showToast('Lectura exportada a Excel', 'success');
+        try {
+          exportSingleReadingExcel(reading, prevReading, servicesDef, businessName);
+          showToast('Lectura exportada a Excel', 'success');
+        } catch (err) {
+          console.error('Error exportando Excel:', err);
+          showToast(`Error al exportar Excel: ${err.message}`, 'error');
+        }
       });
 
       // Single reading PDF export
       const btnPrint = card.querySelector('.btn-print');
       btnPrint.addEventListener('click', (e) => {
         e.stopPropagation();
-        exportSingleReadingPdf(reading, prevReading, servicesDef, businessName);
+        try {
+          exportSingleReadingPdf(reading, prevReading, servicesDef, businessName);
+          showToast('Lectura exportada a PDF', 'success');
+        } catch (err) {
+          console.error('Error exportando PDF:', err);
+          showToast(`Error al exportar PDF: ${err.message}`, 'error');
+        }
       });
 
       // Delete reading
@@ -369,5 +380,7 @@ function exportSingleReadingPdf(curr, prev, servicesDef, businessName) {
     doc.text(`TOTAL SUMINISTRADO EN LA ESTACIÓN: +${totalStationLiters.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} L`, 14, finalY);
   }
 
-  doc.save(`Lectura_${businessName.replace(/\s+/g, '_')}_${curr.date.slice(0, 10)}.pdf`);
+  const dateObj = curr.date instanceof Date ? curr.date : new Date(curr.date);
+  const fileDate = !isNaN(dateObj.getTime()) ? dateObj.toISOString().slice(0, 10) : 'fecha';
+  doc.save(`Lectura_${businessName.replace(/\s+/g, '_')}_${fileDate}.pdf`);
 }
