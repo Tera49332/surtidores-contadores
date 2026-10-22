@@ -74,8 +74,6 @@ export function renderLoginPage(onSuccess) {
       <button class="pin-key">0</button>
       <button class="pin-key">⌫</button>
     </div>
-
-    <div class="pin-hint">Estación de ejemplo: 12589</div>
   `;
 
   let currentPin = '';
