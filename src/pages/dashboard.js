@@ -113,7 +113,7 @@ export async function renderDashboard() {
       <div class="empty-state" style="text-align: center; padding: 3rem 1rem; background: #ffffff; border-radius: 16px; border: 1px dashed var(--border-color); margin-top: 1rem;">
         <div class="empty-icon" style="font-size: 3rem; margin-bottom: 1rem;">⛽</div>
         <h3 style="color: var(--text-main); font-size: 1.2rem; margin-bottom: 0.5rem;">No hay lecturas registradas para ${businessName}</h3>
-        <p class="empty-subtitle" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Registra la primera toma de totalizadores nocturna pulsando el botón +.</p>
+        <p class="empty-subtitle" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Registra la primera toma de totalizadores pulsando el botón +.</p>
         <button onclick="window.location.hash='#register'" class="btn btn-primary" style="padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: 600; background: #002B49; color: #fff; border: none;">
           + Nueva Lectura
         </button>
@@ -206,7 +206,7 @@ export async function renderDashboard() {
       <div class="card" style="background: linear-gradient(135deg, #002B49, #004b7c); color: #ffffff; border-radius: 14px; padding: 1.1rem; margin-bottom: 1rem; box-shadow: 0 4px 14px rgba(0, 43, 73, 0.25); border-left: 5px solid #ff6600;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem;">
           <div>
-            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85;">Última Toma Nocturna</span>
+            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85;">Última Toma de Contadores</span>
             <div style="font-size: 1.15rem; font-weight: 700; margin-top: 2px;">${curDateStr}</div>
           </div>
           <span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">
@@ -228,7 +228,7 @@ export async function renderDashboard() {
           </div>
         ` : `
           <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 0.6rem; font-size: 0.85rem; opacity: 0.9;">
-            Lectura base guardada. Las diferencias en litros se calcularán con la siguiente toma nocturna.
+            Lectura base guardada. Las diferencias en litros se calcularán con la siguiente toma.
           </div>
         `}
       </div>

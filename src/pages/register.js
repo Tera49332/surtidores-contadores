@@ -10,7 +10,7 @@ export async function renderRegisterPage() {
   container.className = 'page-content register-page';
 
   const businessName = getActiveBusinessName();
-  const headerHtml = createHeader(isAdmin() ? 'Nueva Lectura Nocturna' : 'Toma de Contadores', isAdmin());
+  const headerHtml = createHeader(isAdmin() ? 'Nueva Toma de Contadores' : 'Toma de Contadores', isAdmin());
   const servicesDef = getActiveServices();
   const latestReading = await getLatestReading();
 
@@ -167,7 +167,7 @@ export async function renderRegisterPage() {
       );
       if (!proceed) return;
     } else {
-      if (!confirm('¿Confirmas guardar el registro de totalizadores de esta noche/día?')) return;
+      if (!confirm('¿Confirmas guardar el registro de totalizadores?')) return;
     }
 
     const submitBtn = container.querySelector('#btnSubmitRegister');

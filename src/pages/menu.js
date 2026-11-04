@@ -38,11 +38,8 @@ export function renderMenuPage() {
             <span style="color: #ff6600; font-size: 1.2rem; font-weight: 900;">➔</span>
           </div>
           <p style="margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.35;">
-            Toma nocturna o diaria de totalizadores calle por calle.
+            Toma de totalizadores calle por calle.
           </p>
-          <span style="display: inline-block; margin-top: 0.5rem; font-size: 0.75rem; font-weight: 700; background: #e3f2fd; color: #0d47a1; padding: 2px 8px; border-radius: 6px;">
-            🌙 Cierre / Noche
-          </span>
         </div>
       </div>
 
