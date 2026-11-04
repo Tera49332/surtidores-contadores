@@ -15,6 +15,11 @@ function getReadingsPath(businessId) {
   return `businesses/${bid}/readings`;
 }
 
+function getGasReadingsPath(businessId) {
+  const bid = businessId || getActiveBusinessId() || 'estacion_12589';
+  return `businesses/${bid}/gas_readings`;
+}
+
 function getConfigPath(businessId) {
   const bid = businessId || getActiveBusinessId() || 'estacion_12589';
   return `businesses/${bid}/config`;
@@ -24,6 +29,17 @@ function getLocalReadings(businessId) {
   const bid = businessId || getActiveBusinessId() || 'estacion_12589';
   const data = localStorage.getItem(`${bid}_readings`);
   return data ? JSON.parse(data) : [];
+}
+
+function getLocalGasReadings(businessId) {
+  const bid = businessId || getActiveBusinessId() || 'estacion_12589';
+  const data = localStorage.getItem(`${bid}_gas_readings`);
+  return data ? JSON.parse(data) : [];
+}
+
+function setLocalGasReadings(readings, businessId) {
+  const bid = businessId || getActiveBusinessId() || 'estacion_12589';
+  localStorage.setItem(`${bid}_gas_readings`, JSON.stringify(readings));
 }
 
 function setLocalReadings(readings, businessId) {
@@ -133,6 +149,87 @@ export async function deleteReading(id) {
 
 export async function getReadingsForPeriod(startDate, endDate) {
   return await getReadings(startDate, endDate);
+}
+
+// ---------------------------------------------------------------------------
+// GESTIÓN DE BOMBONAS (BUTANO Y PROPANO)
+// ---------------------------------------------------------------------------
+export async function saveGasReading(readingData) {
+  try {
+    const id = readingData.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'gas_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
+    const timestamp = toFirestoreDate(readingData.date || new Date());
+    const dataToSave = { ...readingData, id, date: timestamp };
+
+    if (isLocalMode) {
+      const readings = getLocalGasReadings();
+      readings.push(dataToSave);
+      setLocalGasReadings(readings);
+      return id;
+    } else {
+      const path = getGasReadingsPath();
+      await setDoc(doc(db, path, id), dataToSave);
+      return id;
+    }
+  } catch (error) {
+    console.error('Error saving gas reading:', error);
+    throw error;
+  }
+}
+
+export async function getGasReadings(startDate, endDate) {
+  try {
+    if (isLocalMode) {
+      let readings = getLocalGasReadings();
+      if (startDate) {
+        readings = readings.filter(r => new Date(r.date) >= new Date(startDate));
+      }
+      if (endDate) {
+        readings = readings.filter(r => new Date(r.date) <= new Date(endDate));
+      }
+      readings.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return readings.map(r => ({ ...r, date: fromFirestoreDate(r.date) }));
+    } else {
+      const path = getGasReadingsPath();
+      const qConstraints = [orderBy('date', 'desc')];
+      if (startDate) qConstraints.push(where('date', '>=', toFirestoreDate(startDate)));
+      if (endDate) qConstraints.push(where('date', '<=', toFirestoreDate(endDate)));
+      
+      const q = query(collection(db, path), ...qConstraints);
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return { ...data, date: fromFirestoreDate(data.date) };
+      });
+    }
+  } catch (error) {
+    console.error('Error getting gas readings:', error);
+    return [];
+  }
+}
+
+export async function getLatestGasReading() {
+  try {
+    const readings = await getGasReadings();
+    return readings.length > 0 ? readings[0] : null;
+  } catch (error) {
+    console.error('Error getting latest gas reading:', error);
+    return null;
+  }
+}
+
+export async function deleteGasReading(id) {
+  try {
+    if (isLocalMode) {
+      const readings = getLocalGasReadings().filter(r => r.id !== id);
+      setLocalGasReadings(readings);
+    } else {
+      const path = getGasReadingsPath();
+      await deleteDoc(doc(db, path, id));
+    }
+  } catch (error) {
+    console.error('Error deleting gas reading:', error);
+    throw error;
+  }
 }
 
 export async function getPin() {

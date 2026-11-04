@@ -176,3 +176,106 @@ export function exportSingleReadingExcel(curr, prev, servicesDef, businessName) 
   const cleanName = businessName.replace(/[^a-zA-Z0-9]/g, '_');
   XLSX.writeFile(wb, `Lectura_Repsol_${cleanName}_${fileDate}.xlsx`);
 }
+
+/**
+ * Genera y descarga un Excel con el histórico o periodo de recuentos de Bombonas
+ */
+export function exportGasExcelReport(readings, startDate, endDate) {
+  const businessName = getActiveBusinessName();
+  const sortedReadings = [...readings].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const wb = XLSX.utils.book_new();
+
+  const dateRangeStr = startDate && endDate 
+    ? `${formatDate(startDate)} a ${formatDate(endDate)}`
+    : `Todas las tomas registradas (${sortedReadings.length})`;
+
+  const rows = [
+    [`REPSOL CONTADORES - ${businessName}`],
+    [`Control de Butano y Propano | Periodo: ${dateRangeStr}`],
+    [`Fecha de generación: ${formatDateTime(new Date())}`],
+    [],
+    [
+      'Fecha y Hora', 
+      'Butano Llenas', 'Butano Vacías', 'Butano Huecos', 'Butano Total', 
+      'Propano Llenas', 'Propano Vacías', 'Propano Huecos', 'Propano Total', 
+      'Observaciones'
+    ]
+  ];
+
+  sortedReadings.forEach(r => {
+    const b = r.data?.butano || { llenas: 0, vacias: 0, huecos: 0, total: 0 };
+    const p = r.data?.propano || { llenas: 0, vacias: 0, huecos: 0, total: 0 };
+    rows.push([
+      formatDateTime(r.date),
+      b.llenas,
+      b.vacias,
+      b.huecos,
+      b.total,
+      p.llenas,
+      p.vacias,
+      p.huecos,
+      p.total,
+      r.notes || ''
+    ]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [
+    { wch: 20 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 30 }
+  ];
+  XLSX.utils.book_append_sheet(wb, ws, 'Bombonas');
+
+  const fileDate = new Date().toISOString().slice(0, 10);
+  const cleanName = businessName.replace(/[^a-zA-Z0-9]/g, '_');
+  XLSX.writeFile(wb, `Bombonas_Repsol_${cleanName}_${fileDate}.xlsx`);
+}
+
+/**
+ * Genera y descarga un Excel para un único recuento matinal de bombonas
+ */
+export function exportSingleGasReadingExcel(reading, businessName) {
+  const wb = XLSX.utils.book_new();
+  const dateStr = formatDateTime(reading.date);
+  const b = reading.data?.butano || { llenas: 0, vacias: 0, huecos: 0, total: 0, capacity: '-' };
+  const p = reading.data?.propano || { llenas: 0, vacias: 0, huecos: 0, total: 0, capacity: '-' };
+
+  const rows = [
+    [`REPSOL CONTADORES - ${businessName}`],
+    [`Conteo matinal de Butano y Propano`],
+    [`Fecha y Hora: ${dateStr}`],
+    [],
+    ['Producto', 'Llenas', 'Vacías', 'Huecos', 'Total Contado', 'Capacidad Jaula'],
+    ['Butano (normal)', b.llenas, b.vacias, b.huecos, b.total, b.capacity || '-'],
+    ['Propano (11kg)', p.llenas, p.vacias, p.huecos, p.total, p.capacity || '-']
+  ];
+
+  if (reading.notes) {
+    rows.push([]);
+    rows.push(['Observaciones / Incidencias:', reading.notes]);
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [
+    { wch: 20 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 16 },
+    { wch: 18 }
+  ];
+  XLSX.utils.book_append_sheet(wb, ws, 'Conteo');
+
+  const dateObj = reading.date instanceof Date ? reading.date : new Date(reading.date);
+  const fileDate = !isNaN(dateObj.getTime()) ? dateObj.toISOString().slice(0, 10) : 'fecha';
+  const cleanName = businessName.replace(/[^a-zA-Z0-9]/g, '_');
+  XLSX.writeFile(wb, `Conteo_Bombonas_${cleanName}_${fileDate}.xlsx`);
+}

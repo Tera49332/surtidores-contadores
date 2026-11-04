@@ -83,7 +83,11 @@ export const BUSINESSES = [
           { id: 'totalizador', name: 'Totalizador', short: 'Totalizador', unit: 'L' }
         ]
       }
-    ]
+    ],
+    gasConfig: {
+      butano: { id: 'butano', name: 'Butano (normal)', capacity: 14, iconImg: '/images/butano.png', color: '#ff6600', textColor: '#ffffff' },
+      propano: { id: 'propano', name: 'Propano (11kg)', capacity: 6, iconImg: '/images/propano.png', color: '#005b8e', textColor: '#ffffff' }
+    }
   },
   {
     id: 'estacion_96544',
@@ -135,7 +139,11 @@ export const BUSINESSES = [
           { id: 'diesele', name: 'Diesel e+', short: 'Diesel e+', product: 'Diesel e+', color: '#1a1a1a', textColor: '#ffffff', unit: 'L' }
         ]
       }
-    ]
+    ],
+    gasConfig: {
+      butano: { id: 'butano', name: 'Butano (normal)', capacity: null, iconImg: '/images/butano.png', color: '#ff6600', textColor: '#ffffff' },
+      propano: { id: 'propano', name: 'Propano (11kg)', capacity: null, iconImg: '/images/propano.png', color: '#005b8e', textColor: '#ffffff' }
+    }
   },
   {
     id: 'estacion_33885',
@@ -229,7 +237,11 @@ export const BUSINESSES = [
           { id: 'gasoleob', name: 'Gasóleo B', short: 'Gasóleo B', product: 'Gasóleo B', color: '#1a1a1a', textColor: '#ff3333', unit: 'L' }
         ]
       }
-    ]
+    ],
+    gasConfig: {
+      butano: { id: 'butano', name: 'Butano (normal)', capacity: 30, iconImg: '/images/butano.png', color: '#ff6600', textColor: '#ffffff' },
+      propano: { id: 'propano', name: 'Propano (11kg)', capacity: 9, iconImg: '/images/propano.png', color: '#005b8e', textColor: '#ffffff' }
+    }
   }
 ];
 
@@ -267,6 +279,13 @@ export function getActiveBusiness() {
 
 export function getActiveServices() {
   return getActiveBusiness().services;
+}
+
+export function getActiveGasConfig() {
+  return getActiveBusiness().gasConfig || {
+    butano: { id: 'butano', name: 'Butano (normal)', capacity: null, iconImg: '/images/butano.png', color: '#ff6600', textColor: '#ffffff' },
+    propano: { id: 'propano', name: 'Propano (11kg)', capacity: null, iconImg: '/images/propano.png', color: '#005b8e', textColor: '#ffffff' }
+  };
 }
 
 export function getActiveBusinessName() {

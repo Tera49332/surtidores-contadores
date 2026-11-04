@@ -1,15 +1,21 @@
 import { isAdmin } from '../utils/session.js';
 
 export function createHeader(title, showBack = false) {
-  const allowBack = showBack && isAdmin();
+  let leftBtnHtml = '';
+  if (showBack) {
+    if (isAdmin()) {
+      leftBtnHtml = '<button class="back-btn" onclick="window.location.hash=\'#dashboard\'" title="Volver al panel" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #002B49; padding: 4px 8px;">←</button>';
+    } else {
+      leftBtnHtml = '<button class="back-btn" onclick="window.location.hash=\'#menu\'" title="Volver al menú de tareas" style="background: rgba(0, 43, 73, 0.06); border: 1px solid rgba(0, 43, 73, 0.15); border-radius: 6px; padding: 5px 9px; font-size: 0.8rem; font-weight: 700; color: #002B49; cursor: pointer;">← Menú</button>';
+    }
+  } else {
+    leftBtnHtml = '<button class="logout-header-btn" onclick="window.appLogout()" title="Cerrar turno / Salir" style="background: rgba(0, 43, 73, 0.06); border: 1px solid rgba(0, 43, 73, 0.15); border-radius: 6px; padding: 5px 9px; font-size: 0.8rem; font-weight: 600; color: #002B49; cursor: pointer;">🚪 Salir</button>';
+  }
 
   return `
     <header class="app-header" style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 1rem; background: #ffffff; border-bottom: 2px solid #ff6600; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100;">
       <div style="display: flex; align-items: center; gap: 0.75rem;">
-        ${allowBack 
-          ? '<button class="back-btn" onclick="window.location.hash=\'#dashboard\'" title="Volver al panel" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #002B49; padding: 4px 8px;">←</button>' 
-          : '<button class="logout-header-btn" onclick="window.appLogout()" title="Cerrar turno / Salir" style="background: rgba(0, 43, 73, 0.06); border: 1px solid rgba(0, 43, 73, 0.15); border-radius: 6px; padding: 5px 9px; font-size: 0.8rem; font-weight: 600; color: #002B49; cursor: pointer;">🚪 Salir</button>'
-        }
+        ${leftBtnHtml}
       </div>
 
       <div style="display: flex; align-items: center; gap: 0.6rem;">

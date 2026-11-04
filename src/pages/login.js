@@ -100,9 +100,9 @@ export function renderLoginPage(onSuccess) {
       } else {
         const business = BUSINESSES.find(b => b.pin === currentPin);
         if (business) {
-          // Acceso Operador / Punto de Venta directo a meter contadores
+          // Acceso Operador / Punto de Venta al menú de selección de tareas
           setUserSession(business.id, 'operator');
-          window.location.hash = '#register';
+          window.location.hash = '#menu';
           if (typeof onSuccess === 'function') onSuccess();
         } else {
           display.classList.add('shake');

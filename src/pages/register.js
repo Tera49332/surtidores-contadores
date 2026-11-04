@@ -20,6 +20,18 @@ export async function renderRegisterPage() {
 
   let formHtml = `
     <form id="registerForm" novalidate style="padding: 1rem; padding-bottom: 5rem; display: flex; flex-direction: column; gap: 1rem;">
+      <!-- NAVEGACIÓN RÁPIDA / CAMBIAR DE TAREA -->
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" onclick="window.location.hash='#menu'" 
+                style="background: rgba(0, 43, 73, 0.05); border: 1px solid rgba(0, 43, 73, 0.15); border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; font-weight: 700; color: #002B49; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
+          <span>←</span> Menú de tareas
+        </button>
+        <button type="button" onclick="window.location.hash='#gas-register'"
+                style="background: rgba(255, 102, 0, 0.08); border: 1px solid rgba(255, 102, 0, 0.25); border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; font-weight: 700; color: #ff6600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
+          <span>🔥</span> Butano / Propano ➔
+        </button>
+      </div>
+
       <div class="card" style="padding: 1rem; background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px;">
         <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem;">
           📅 Fecha y Hora de la Toma
@@ -226,7 +238,11 @@ function showOperatorConfirmation(container, businessName, selectedDate) {
           🚪 Finalizar y Cerrar Sesión
         </button>
 
-        <button id="btnOperatorNewReading" class="btn btn-secondary" style="width: 100%; padding: 0.8rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: #ffffff; border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer;">
+        <button id="btnOperatorMenu" class="btn btn-secondary" style="width: 100%; padding: 0.8rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: #ffffff; border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer;">
+          📋 Ir al Menú de Tareas
+        </button>
+
+        <button id="btnOperatorNewReading" class="btn btn-secondary" style="width: 100%; padding: 0.8rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; background: transparent; border: none; color: var(--text-dim); cursor: pointer;">
           📝 Modificar o registrar otra lectura
         </button>
       </div>
@@ -237,6 +253,10 @@ function showOperatorConfirmation(container, businessName, selectedDate) {
     logout();
     window.location.hash = '#login';
     window.location.reload();
+  });
+
+  container.querySelector('#btnOperatorMenu').addEventListener('click', () => {
+    window.location.hash = '#menu';
   });
 
   container.querySelector('#btnOperatorNewReading').addEventListener('click', () => {

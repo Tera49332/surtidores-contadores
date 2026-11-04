@@ -1,5 +1,5 @@
 import { createHeader } from '../components/header.js';
-import { getLastTwoReadings } from '../db.js';
+import { getLastTwoReadings, getLatestGasReading } from '../db.js';
 import { BUSINESSES, getActiveBusiness, getActiveBusinessName, getActiveServices, getCounterStyle } from '../utils/constants.js';
 import { formatDateTime } from '../utils/date-helpers.js';
 import { isAdmin, getActiveBusinessId, setActiveBusinessId } from '../utils/session.js';
@@ -16,6 +16,7 @@ export async function renderDashboard() {
   const lastTwo = await getLastTwoReadings() || [];
   const currentReading = lastTwo.length > 0 ? lastTwo[0] : null;
   const previousReading = lastTwo.length > 1 ? lastTwo[1] : null;
+  const latestGas = await getLatestGasReading();
 
   let contentHtml = '';
 
@@ -45,6 +46,67 @@ export async function renderDashboard() {
   }
 
   contentHtml += businessBannerHtml;
+
+  // Tarjeta de Stock de Bombonas (Butano y Propano)
+  let gasCardHtml = '';
+  if (latestGas) {
+    const butano = latestGas.data?.butano || { llenas: 0, vacias: 0, huecos: 0, total: 0 };
+    const propano = latestGas.data?.propano || { llenas: 0, vacias: 0, huecos: 0, total: 0 };
+    gasCardHtml = `
+      <div class="card" style="background: #ffffff; border: 1.5px solid rgba(255, 102, 0, 0.25); border-radius: 14px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light);">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <img src="/images/butano.png" alt="Bombonas" style="height: 28px; width: auto;">
+            <strong style="color: #002B49; font-size: 0.95rem;">Stock de Butano y Propano</strong>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">
+            ${formatDateTime(latestGas.date)}
+          </span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div style="background: #fff8f2; border: 1px solid rgba(255, 102, 0, 0.2); border-radius: 10px; padding: 0.65rem 0.8rem;">
+            <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 4px;">
+              <img src="/images/butano.png" alt="Butano" style="height: 22px; width: auto;">
+              <strong style="color: #002B49; font-size: 0.85rem;">Butano (normal)</strong>
+            </div>
+            <div style="font-size: 0.8rem; color: #2e7d32; font-weight: 700;">🟢 ${butano.llenas} Llenas</div>
+            <div style="font-size: 0.8rem; color: #0277bd; font-weight: 600;">⚪ ${butano.vacias} Vacías</div>
+            <div style="font-size: 0.8rem; color: #c62828; font-weight: 600;">🔴 ${butano.huecos} Huecos</div>
+          </div>
+          <div style="background: #f0f7ff; border: 1px solid rgba(0, 91, 142, 0.2); border-radius: 10px; padding: 0.65rem 0.8rem;">
+            <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 4px;">
+              <img src="/images/propano.png" alt="Propano" style="height: 22px; width: auto;">
+              <strong style="color: #002B49; font-size: 0.85rem;">Propano (11kg)</strong>
+            </div>
+            <div style="font-size: 0.8rem; color: #2e7d32; font-weight: 700;">🟢 ${propano.llenas} Llenas</div>
+            <div style="font-size: 0.8rem; color: #0277bd; font-weight: 600;">⚪ ${propano.vacias} Vacías</div>
+            <div style="font-size: 0.8rem; color: #c62828; font-weight: 600;">🔴 ${propano.huecos} Huecos</div>
+          </div>
+        </div>
+        <div style="margin-top: 0.75rem; text-align: right;">
+          <a href="#gas-register" style="font-size: 0.8rem; font-weight: 700; color: #ff6600; text-decoration: none;">
+            + Nuevo Conteo Matinal ➔
+          </a>
+        </div>
+      </div>
+    `;
+  } else {
+    gasCardHtml = `
+      <div class="card" style="background: #ffffff; border: 1px dashed rgba(255, 102, 0, 0.4); border-radius: 14px; padding: 0.85rem 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <img src="/images/butano.png" alt="Bombonas" style="height: 32px; width: auto;">
+          <div>
+            <strong style="color: #002B49; font-size: 0.9rem;">Sin conteo de bombonas reciente</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Registra el stock matinal de jaula</div>
+          </div>
+        </div>
+        <button onclick="window.location.hash='#gas-register'" style="background: #ff6600; color: #fff; border: none; border-radius: 8px; padding: 5px 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+          + Conteo
+        </button>
+      </div>
+    `;
+  }
+  contentHtml += gasCardHtml;
 
   if (!currentReading) {
     contentHtml += `

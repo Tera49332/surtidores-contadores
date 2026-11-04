@@ -1,7 +1,7 @@
 import { createHeader } from '../components/header.js';
-import { getReadings } from '../db.js';
+import { getReadings, getGasReadings } from '../db.js';
 import { BUSINESSES, getActiveBusiness, getActiveBusinessName, getActiveServices, getCounterStyle } from '../utils/constants.js';
-import { generateExcelReport } from '../utils/excel-generator.js';
+import { generateExcelReport, exportGasExcelReport } from '../utils/excel-generator.js';
 import { generateReport as generatePdfReport } from '../utils/pdf-generator.js';
 import { formatDate } from '../utils/date-helpers.js';
 import { showToast } from '../components/toast.js';
@@ -53,13 +53,27 @@ export async function renderReportPage() {
         
         <div style="display: flex; flex-direction: column; gap: 0.6rem;">
           <button id="btnGenerateExcel" class="btn btn-primary" style="width: 100%; padding: 0.9rem; border-radius: 8px; font-weight: 700; font-size: 1.05rem; background: #107c41; border: none; color: #fff; display: flex; align-items: center; justify-content: center; gap: 0.6rem; cursor: pointer; box-shadow: 0 3px 10px rgba(16, 124, 65, 0.25);">
-            <span style="font-size: 1.2rem;">📗</span> Descargar Informe en Excel (.xlsx)
+            <span style="font-size: 1.2rem;">📗</span> Descargar Suministro en Excel (.xlsx)
           </button>
           
           <button id="btnGeneratePdf" class="btn btn-secondary" style="width: 100%; padding: 0.65rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 0.4rem; cursor: pointer;">
-            <span>📄</span> Opcional: Descargar en PDF
+            <span>📄</span> Opcional: Descargar Suministro en PDF
           </button>
         </div>
+      </div>
+
+      <!-- INFORME DE BOMBONAS DE GAS -->
+      <div class="card" style="background: #ffffff; border: 1.5px solid rgba(255, 102, 0, 0.25); border-radius: 12px; padding: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+        <h4 style="margin: 0 0 0.5rem 0; color: #002B49; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
+          <img src="/images/butano.png" alt="Bombonas" style="height: 24px; width: auto;">
+          <span>Informe de Butano y Propano (${businessName})</span>
+        </h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.85rem 0; line-height: 1.4;">
+          Exporta el historial de conteos matinales de jaulas (llenas, vacías, huecos y observaciones).
+        </p>
+        <button id="btnGenerateGasExcel" class="btn btn-primary" style="width: 100%; padding: 0.85rem; border-radius: 8px; font-weight: 700; font-size: 1rem; background: #ff6600; border: none; color: #fff; display: flex; align-items: center; justify-content: center; gap: 0.6rem; cursor: pointer; box-shadow: 0 3px 10px rgba(255, 102, 0, 0.25);">
+          <span style="font-size: 1.1rem;">📗</span> Descargar Informe de Bombonas (.xlsx)
+        </button>
       </div>
 
       <div id="reportSummaryPreview"></div>
@@ -204,6 +218,40 @@ export async function renderReportPage() {
       showToast(`Error al generar PDF: ${err.message}`, 'error');
     }
   });
+
+  const btnGenerateGasExcel = container.querySelector('#btnGenerateGasExcel');
+  if (btnGenerateGasExcel) {
+    btnGenerateGasExcel.addEventListener('click', async () => {
+      try {
+        const gasReadings = await getGasReadings();
+        const sVal = startDateInput.value;
+        const eVal = endDateInput.value;
+        let filteredGas = [...gasReadings];
+
+        if (sVal) {
+          const sDate = new Date(sVal);
+          sDate.setHours(0, 0, 0, 0);
+          filteredGas = filteredGas.filter(r => new Date(r.date) >= sDate);
+        }
+        if (eVal) {
+          const eDate = new Date(eVal);
+          eDate.setHours(23, 59, 59, 999);
+          filteredGas = filteredGas.filter(r => new Date(r.date) <= eDate);
+        }
+
+        if (filteredGas.length === 0) {
+          showToast('No hay conteos de bombonas en el periodo seleccionado', 'warning');
+          return;
+        }
+
+        exportGasExcelReport(filteredGas, sVal ? new Date(sVal) : null, eVal ? new Date(eVal) : null);
+        showToast('Informe de Bombonas (.xlsx) generado', 'success');
+      } catch (err) {
+        console.error('Error al generar Excel de gas:', err);
+        showToast(`Error al exportar: ${err.message}`, 'error');
+      }
+    });
+  }
 
   updatePreview();
   return container;
