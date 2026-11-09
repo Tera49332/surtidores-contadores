@@ -456,10 +456,10 @@ export const BUSINESSES = [
           icon: '🚿',
           color: '#00BCD4',
           counters: [
-            { id: 'p1', name: 'Programa 1', short: 'P1' },
-            { id: 'p2', name: 'Programa 2', short: 'P2' },
-            { id: 'p3', name: 'Programa 3', short: 'P3' },
-            { id: 'p4', name: 'Programa 4', short: 'P4' }
+            { id: 'p1', name: 'Programa 1', short: 'P1', label: 'P1' },
+            { id: 'p2', name: 'Programa 2', short: 'P2', label: 'P2' },
+            { id: 'p3', name: 'Programa 3', short: 'P3', label: 'P3' },
+            { id: 'p4', name: 'Programa 4', short: 'P4', label: 'P4' }
           ]
         },
         {
@@ -468,10 +468,10 @@ export const BUSINESSES = [
           icon: '🧽',
           color: '#7C4DFF',
           counters: [
-            { id: 'eur1', name: '1€', short: '1€' },
-            { id: 'eur2', name: '2€', short: '2€' },
-            { id: 'klin', name: 'KLIN', short: 'KLIN' },
-            { id: 'fichas', name: 'Fichas', short: 'FICHAS' }
+            { id: 'eur1', name: '1€', short: '1€', label: '1€ · TIPO 3' },
+            { id: 'eur2', name: '2€', short: '2€', label: '2€' },
+            { id: 'klin', name: 'KLIN', short: 'KLIN', label: 'KLIN · Recaudación Pulsos' },
+            { id: 'fichas', name: 'Fichas', short: 'FICHAS', label: 'FICHAS · TIPO 4' }
           ]
         },
         {
@@ -480,10 +480,10 @@ export const BUSINESSES = [
           icon: '🧽',
           color: '#E040FB',
           counters: [
-            { id: 'eur1', name: '1€', short: '1€' },
-            { id: 'eur2', name: '2€', short: '2€' },
-            { id: 'klin', name: 'KLIN', short: 'KLIN' },
-            { id: 'fichas', name: 'Fichas', short: 'FICHAS' }
+            { id: 'eur1', name: '1€', short: '1€', label: '1€ · TIPO 3' },
+            { id: 'eur2', name: '2€', short: '2€', label: '2€' },
+            { id: 'klin', name: 'KLIN', short: 'KLIN', label: 'KLIN · Recaudación Pulsos' },
+            { id: 'fichas', name: 'Fichas', short: 'FICHAS', label: 'FICHAS · TIPO 4' }
           ]
         },
         {
@@ -492,8 +492,8 @@ export const BUSINESSES = [
           icon: '💨',
           color: '#FF7043',
           counters: [
-            { id: 'eurKlin', name: '€/KLIN', short: '€/KLIN' },
-            { id: 'fichas', name: 'Fichas', short: 'FICHAS' }
+            { id: 'eurKlin', name: '€/KLIN', short: '€/KLIN', label: 'T2' },
+            { id: 'fichas', name: 'Fichas', short: 'FICHAS', label: 'T4' }
           ]
         },
         {
@@ -502,8 +502,8 @@ export const BUSINESSES = [
           icon: '💨',
           color: '#FFA726',
           counters: [
-            { id: 'eurKlin', name: '€/KLIN', short: '€/KLIN' },
-            { id: 'fichas', name: 'Fichas', short: 'FICHAS' }
+            { id: 'eurKlin', name: '€/KLIN', short: '€/KLIN', label: 'T2' },
+            { id: 'fichas', name: 'Fichas', short: 'FICHAS', label: 'T4' }
           ]
         },
         {
@@ -512,8 +512,8 @@ export const BUSINESSES = [
           icon: '💨',
           color: '#FFCA28',
           counters: [
-            { id: 'eurKlin', name: '€/KLIN', short: '€/KLIN' },
-            { id: 'fichas', name: 'Fichas', short: 'FICHAS' }
+            { id: 'eurKlin', name: '€/KLIN', short: '€/KLIN', label: 'T2' },
+            { id: 'fichas', name: 'Fichas', short: 'FICHAS', label: 'T4' }
           ]
         }
       ]

@@ -49,11 +49,12 @@ export async function renderLavaderoRegisterPage() {
 
     service.counters.forEach(counterObj => {
       const counter = counterObj.short;
+      const displayLabel = counterObj.label || counterObj.short;
       const prevVal = latestReading?.data?.[service.name]?.[counter] ?? 0;
       formHtml += `
         <div class="input-group" style="display: flex; flex-direction: column; gap: 0.45rem;">
-          <label style="color: #002B49; font-size: 0.85rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center;">
-            <span style="background: ${accentColor}22; color: #002B49; border-left: 3px solid ${accentColor}; padding: 2px 6px; border-radius: 4px;">${counter}</span>
+          <label style="color: #002B49; font-size: 0.82rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+            <span style="background: ${accentColor}22; color: #002B49; border-left: 3px solid ${accentColor}; padding: 2px 6px; border-radius: 4px;">${displayLabel}</span>
             <span class="register-ref" style="color: #005B8E; font-size: 0.75rem; font-weight: 700;">Ref: ${prevVal}</span>
           </label>
           <input type="number" 
@@ -62,6 +63,7 @@ export async function renderLavaderoRegisterPage() {
                  class="input input-lavadero-counter" 
                  data-service="${service.name}" 
                  data-counter="${counter}" 
+                 data-label="${displayLabel}" 
                  data-prev="${prevVal}" 
                  value="${prevVal}" 
                  placeholder="${prevVal}" 
@@ -109,12 +111,13 @@ export async function renderLavaderoRegisterPage() {
     container.querySelectorAll('.input-lavadero-counter').forEach(input => {
       const s = input.dataset.service;
       const c = input.dataset.counter;
+      const lbl = input.dataset.label || c;
       const prev = parseFloat(input.dataset.prev) || 0;
       const valStr = (input.value !== undefined && input.value !== null ? String(input.value) : '').trim();
       const v = valStr === '' ? prev : (parseFloat(valStr.replace(',', '.')) || 0);
 
       if (v < prev) {
-        smallerCounters.push(`${s} - ${c} (nuevo: ${v}, anterior: ${prev})`);
+        smallerCounters.push(`${s} - ${lbl} (nuevo: ${v}, anterior: ${prev})`);
         input.style.borderColor = '#F44336';
       } else {
         input.style.borderColor = '#005B8E';
