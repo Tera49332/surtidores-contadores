@@ -29,13 +29,19 @@ export function calculateGasDailySales(readings = [], deliveries = []) {
     const butanoDelivered = matchingDeliveries.reduce((sum, d) => sum + (Number(d.butanoLlenas) || 0), 0);
     const propanoDelivered = matchingDeliveries.reduce((sum, d) => sum + (Number(d.propanoLlenas) || 0), 0);
 
-    const butanoInitial = Number(startCount.butano?.llenas) || 0;
-    const butanoFinal = Number(endCount.butano?.llenas) || 0;
+    // Counts are stored under reading.data.{butano|propano} (fallback to top-level for safety)
+    const sB = startCount.data?.butano || startCount.butano || {};
+    const eB = endCount.data?.butano || endCount.butano || {};
+    const sP = startCount.data?.propano || startCount.propano || {};
+    const eP = endCount.data?.propano || endCount.propano || {};
+
+    const butanoInitial = Number(sB.llenas) || 0;
+    const butanoFinal = Number(eB.llenas) || 0;
     // Sales formula: initial full + delivered full - final full
     const butanoSold = Math.max(0, (butanoInitial + butanoDelivered) - butanoFinal);
 
-    const propanoInitial = Number(startCount.propano?.llenas) || 0;
-    const propanoFinal = Number(endCount.propano?.llenas) || 0;
+    const propanoInitial = Number(sP.llenas) || 0;
+    const propanoFinal = Number(eP.llenas) || 0;
     const propanoSold = Math.max(0, (propanoInitial + propanoDelivered) - propanoFinal);
 
     intervals.push({
@@ -51,21 +57,21 @@ export function calculateGasDailySales(readings = [], deliveries = []) {
         delivered: butanoDelivered,
         final: butanoFinal,
         sold: butanoSold,
-        vacias: Number(endCount.butano?.vacias) || 0,
-        huecos: Number(endCount.butano?.huecos) || 0,
-        totalJaula: Number(endCount.butano?.total) || 0
+        vacias: Number(eB.vacias) || 0,
+        huecos: Number(eB.huecos) || 0,
+        totalJaula: Number(eB.total) || 0
       },
       propano: {
         initial: propanoInitial,
         delivered: propanoDelivered,
         final: propanoFinal,
         sold: propanoSold,
-        vacias: Number(endCount.propano?.vacias) || 0,
-        huecos: Number(endCount.propano?.huecos) || 0,
-        totalJaula: Number(endCount.propano?.total) || 0
+        vacias: Number(eP.vacias) || 0,
+        huecos: Number(eP.huecos) || 0,
+        totalJaula: Number(eP.total) || 0
       },
       albaranes: matchingDeliveries.map(d => d.albaran).filter(Boolean).join(', '),
-      notes: [endCount.observaciones, ...matchingDeliveries.map(d => d.observaciones)].filter(Boolean).join(' | ')
+      notes: [endCount.notes || endCount.observaciones, ...matchingDeliveries.map(d => d.observaciones)].filter(Boolean).join(' | ')
     });
   }
 
