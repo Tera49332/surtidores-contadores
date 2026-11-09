@@ -55,8 +55,9 @@ export async function renderLavaderoRegisterPage() {
       const counter = counterObj.short;
       const displayLabel = counterObj.label || counterObj.short;
       const prevVal = latestReading?.data?.[service.name]?.[counter] ?? 0;
+      const hiddenStyle = counterObj.hidden ? 'display: none;' : 'display: flex; flex-direction: column; gap: 0.45rem;';
       formHtml += `
-        <div class="input-group" style="display: flex; flex-direction: column; gap: 0.45rem;">
+        <div class="input-group" style="${hiddenStyle}">
           <label style="color: #002B49; font-size: 0.82rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
             <span style="background: ${accentColor}22; color: #002B49; border-left: 3px solid ${accentColor}; padding: 2px 6px; border-radius: 4px;">${displayLabel}</span>
             <span class="register-ref" style="color: #005B8E; font-size: 0.75rem; font-weight: 700;">Ref: ${prevVal}</span>
