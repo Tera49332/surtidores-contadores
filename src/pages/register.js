@@ -68,6 +68,8 @@ export async function renderRegisterPage() {
       const counter = counterObj.short || counterObj.name;
       const unit = counterObj.unit || 'L';
       const prevVal = latestReading?.data?.[service.name]?.[counter] ?? 0;
+      const prevIntStr = prevVal > 0 ? String(Math.trunc(prevVal)) : '';
+      const prefix3 = prevIntStr.length >= 3 ? prevIntStr.slice(0, 3) : prevIntStr;
       const cStyle = getCounterStyle(service, counterObj);
       
       const counterBadgeHtml = counterObj.product ? `
@@ -76,28 +78,36 @@ export async function renderRegisterPage() {
         </span>
       ` : '';
 
+      const prefixBadgeHtml = prefix3 ? `
+        <span style="font-size: 0.74rem; font-weight: 800; color: #002B49; background: #e3f2fd; border: 1px solid #90caf9; padding: 1px 6px; border-radius: 5px; letter-spacing: 0.5px;" title="Primeros 3 dígitos del contador">
+          🔢 ${prefix3}…
+        </span>
+      ` : '';
+
       formHtml += `
         <div class="input-group" style="display: flex; flex-direction: column; gap: 0.35rem;">
-          <label style="color: var(--text-main); font-size: 0.85rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+          <label style="color: var(--text-main); font-size: 0.85rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.25rem;">
             <span style="display: flex; align-items: center; gap: 0.4rem;">
               ${counterBadgeHtml}
               <span>${counter} (${unit})</span>
+              ${prefixBadgeHtml}
             </span>
-            <span class="register-ref" style="color: var(--text-muted); font-size: 0.8rem; font-weight: 500;">
+            <span class="register-ref" data-fill="${prevVal > 0 ? prevVal : ''}" style="color: var(--text-muted); font-size: 0.8rem; font-weight: 500; cursor: pointer;" title="Pulsa para copiar la lectura anterior completa">
               Ref: <strong>${prevVal.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${unit}</strong>
             </span>
           </label>
           <div style="position: relative; display: flex; align-items: center;">
-            <input type="number" 
-                   step="any"
+            <input type="text" 
+                   inputmode="decimal"
+                   autocomplete="off"
                    class="input input-counter" 
                    data-service="${service.name}" 
                    data-counter="${counter}" 
                    data-prev="${prevVal}" 
-                   value="${prevVal > 0 ? prevVal : ''}" 
+                   data-prefix="${prefix3}"
+                   value="${prefix3}" 
                    placeholder="${prevVal > 0 ? prevVal : '0.00'}" 
-                   style="background: #ffffff; border: 1.5px solid #002B49; border-radius: 8px; padding: 0.8rem; padding-right: 2.5rem; color: var(--text-main); font-size: 1.1rem; font-weight: 700; width: 100%; box-sizing: border-box;" 
-                   onfocus="this.select()">
+                   style="background: #ffffff; border: 1.5px solid #002B49; border-radius: 8px; padding: 0.8rem; padding-right: 2.5rem; color: var(--text-main); font-size: 1.1rem; font-weight: 700; width: 100%; box-sizing: border-box;">
             <span style="position: absolute; right: 0.85rem; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; pointer-events: none;">${unit}</span>
           </div>
         </div>
@@ -116,6 +126,34 @@ export async function renderRegisterPage() {
   </form>`;
 
   container.innerHTML = headerHtml + formHtml;
+
+  // Place cursor at the end of the 3 pre-filled digits on focus (without selecting/deleting them)
+  container.querySelectorAll('.input-counter').forEach(input => {
+    input.addEventListener('focus', () => {
+      setTimeout(() => {
+        try {
+          const len = input.value.length;
+          input.setSelectionRange(len, len);
+        } catch (e) {}
+      }, 0);
+    });
+  });
+
+  // Allow tapping "Ref: ..." to copy the full previous value if a counter didn't move
+  container.querySelectorAll('.register-ref').forEach(refEl => {
+    refEl.addEventListener('click', (e) => {
+      e.preventDefault();
+      const fillVal = refEl.dataset.fill;
+      if (fillVal) {
+        const group = refEl.closest('.input-group');
+        const input = group ? group.querySelector('.input-counter') : null;
+        if (input) {
+          input.value = fillVal;
+          input.focus();
+        }
+      }
+    });
+  });
 
   // Toggle accordion functionality
   const sections = container.querySelectorAll('.register-section');
