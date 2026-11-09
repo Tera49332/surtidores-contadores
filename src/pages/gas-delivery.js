@@ -9,7 +9,7 @@ export async function renderGasDeliveryPage() {
   container.className = 'page-content gas-delivery-page';
 
   const businessName = getActiveBusinessName();
-  const headerHtml = createHeader('Descarga de Mercancía', true);
+  const headerHtml = createHeader('Descarga de Butano', true);
 
   // Current local datetime
   const now = new Date();
@@ -32,7 +32,7 @@ export async function renderGasDeliveryPage() {
 
       <div class="card" style="background: linear-gradient(135deg, #002B49, #004b7c); color: #ffffff; border-radius: 14px; padding: 1.1rem; box-shadow: 0 4px 12px rgba(0, 43, 73, 0.2); border-left: 5px solid #107c41;">
         <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0 0 0.3rem 0;">
-          Albarán de Descarga de Bombonas
+          Registro de Descarga de Butano
         </h2>
         <p style="margin: 0; font-size: 0.85rem; opacity: 0.9; line-height: 1.35;">
           Anota las <strong>bombonas llenas</strong> que el transportista descarga en las jaulas de <strong>${businessName}</strong>.
