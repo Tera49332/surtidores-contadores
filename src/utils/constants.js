@@ -445,6 +445,78 @@ export const BUSINESSES = [
     gasConfig: {
       butano: { id: 'butano', name: 'Butano (normal)', capacity: null, iconImg: '/images/butano.png', color: '#ff6600', textColor: '#ffffff' },
       propano: { id: 'propano', name: 'Propano (11kg)', capacity: null, iconImg: '/images/propano.png', color: '#005b8e', textColor: '#ffffff' }
+    },
+    lavaderoConfig: {
+      firestoreId: 'klin',
+      name: 'Lavadero Klin',
+      services: [
+        {
+          id: 'tunnel',
+          name: 'TÚNEL',
+          icon: '🚿',
+          color: '#00BCD4',
+          counters: [
+            { id: 'p1', name: 'Programa 1', short: 'P1' },
+            { id: 'p2', name: 'Programa 2', short: 'P2' },
+            { id: 'p3', name: 'Programa 3', short: 'P3' },
+            { id: 'p4', name: 'Programa 4', short: 'P4' }
+          ]
+        },
+        {
+          id: 'box1',
+          name: 'BOX 1',
+          icon: '🧽',
+          color: '#7C4DFF',
+          counters: [
+            { id: 'eur1', name: '1€', short: '1€' },
+            { id: 'eur2', name: '2€', short: '2€' },
+            { id: 'klin', name: 'KLIN', short: 'KLIN' },
+            { id: 'fichas', name: 'Fichas', short: 'FICHAS' }
+          ]
+        },
+        {
+          id: 'box2',
+          name: 'BOX 2',
+          icon: '🧽',
+          color: '#E040FB',
+          counters: [
+            { id: 'eur1', name: '1€', short: '1€' },
+            { id: 'eur2', name: '2€', short: '2€' },
+            { id: 'klin', name: 'KLIN', short: 'KLIN' },
+            { id: 'fichas', name: 'Fichas', short: 'FICHAS' }
+          ]
+        },
+        {
+          id: 'aspirador1',
+          name: 'ASPIRADOR 1',
+          icon: '💨',
+          color: '#FF7043',
+          counters: [
+            { id: 'eurKlin', name: '€/KLIN', short: '€/KLIN' },
+            { id: 'fichas', name: 'Fichas', short: 'FICHAS' }
+          ]
+        },
+        {
+          id: 'aspirador2',
+          name: 'ASPIRADOR 2',
+          icon: '💨',
+          color: '#FFA726',
+          counters: [
+            { id: 'eurKlin', name: '€/KLIN', short: '€/KLIN' },
+            { id: 'fichas', name: 'Fichas', short: 'FICHAS' }
+          ]
+        },
+        {
+          id: 'aspirador3',
+          name: 'ASPIRADOR 3',
+          icon: '💨',
+          color: '#FFCA28',
+          counters: [
+            { id: 'eurKlin', name: '€/KLIN', short: '€/KLIN' },
+            { id: 'fichas', name: 'Fichas', short: 'FICHAS' }
+          ]
+        }
+      ]
     }
   }
 ];
@@ -490,6 +562,10 @@ export function getActiveGasConfig() {
     butano: { id: 'butano', name: 'Butano (normal)', capacity: null, iconImg: '/images/butano.png', color: '#ff6600', textColor: '#ffffff' },
     propano: { id: 'propano', name: 'Propano (11kg)', capacity: null, iconImg: '/images/propano.png', color: '#005b8e', textColor: '#ffffff' }
   };
+}
+
+export function getActiveLavaderoConfig() {
+  return getActiveBusiness().lavaderoConfig || null;
 }
 
 export function getActiveBusinessName() {

@@ -316,6 +316,93 @@ export async function deleteGasDelivery(id) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// GESTIÓN DE CONTADORES LAVADERO KLIN (33405 -> businesses/klin/readings)
+// ---------------------------------------------------------------------------
+function getLavaderoFirestoreId() {
+  const business = getActiveBusiness();
+  return business?.lavaderoConfig?.firestoreId || 'klin';
+}
+
+function getLavaderoReadingsPath() {
+  const lId = getLavaderoFirestoreId();
+  return `businesses/${lId}/readings`;
+}
+
+function getLocalLavaderoReadings() {
+  const lId = getLavaderoFirestoreId();
+  const data = localStorage.getItem(`${lId}_readings`);
+  return data ? JSON.parse(data) : [];
+}
+
+function setLocalLavaderoReadings(readings) {
+  const lId = getLavaderoFirestoreId();
+  localStorage.setItem(`${lId}_readings`, JSON.stringify(readings));
+}
+
+export async function saveLavaderoReading(readingData) {
+  try {
+    const id = readingData.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'rec_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
+    const timestamp = toFirestoreDate(readingData.date || new Date());
+    const dataToSave = { ...readingData, id, date: timestamp };
+
+    if (isLocalMode) {
+      const readings = getLocalLavaderoReadings();
+      readings.push(dataToSave);
+      setLocalLavaderoReadings(readings);
+      return id;
+    } else {
+      const path = getLavaderoReadingsPath();
+      await setDoc(doc(db, path, id), dataToSave);
+      return id;
+    }
+  } catch (error) {
+    console.error('Error saving lavadero reading:', error);
+    throw error;
+  }
+}
+
+export async function getLavaderoReadings(startDate, endDate) {
+  try {
+    if (isLocalMode) {
+      let readings = getLocalLavaderoReadings();
+      if (startDate) {
+        readings = readings.filter(r => new Date(r.date) >= new Date(startDate));
+      }
+      if (endDate) {
+        readings = readings.filter(r => new Date(r.date) <= new Date(endDate));
+      }
+      readings.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return readings.map(r => ({ ...r, date: fromFirestoreDate(r.date) }));
+    } else {
+      const path = getLavaderoReadingsPath();
+      const qConstraints = [orderBy('date', 'desc')];
+      if (startDate) qConstraints.push(where('date', '>=', toFirestoreDate(startDate)));
+      if (endDate) qConstraints.push(where('date', '<=', toFirestoreDate(endDate)));
+      
+      const q = query(collection(db, path), ...qConstraints);
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return { ...data, date: fromFirestoreDate(data.date) };
+      });
+    }
+  } catch (error) {
+    console.error('Error getting lavadero readings:', error);
+    return [];
+  }
+}
+
+export async function getLatestLavaderoReading() {
+  try {
+    const readings = await getLavaderoReadings();
+    return readings.length > 0 ? readings[0] : null;
+  } catch (error) {
+    console.error('Error getting latest lavadero reading:', error);
+    return null;
+  }
+}
+
 export async function getPin() {
   try {
     const business = getActiveBusiness();

@@ -4,5 +4,6 @@ export {
   getPin, setPin, getConfig, setConfig, getReadingsForPeriod, 
   getLatestReading, getServicesSchema, migrateLocalDataToFirebase,
   saveGasReading, getGasReadings, getLatestGasReading, deleteGasReading,
-  saveGasDelivery, getGasDeliveries, deleteGasDelivery
+  saveGasDelivery, getGasDeliveries, deleteGasDelivery,
+  saveLavaderoReading, getLavaderoReadings, getLatestLavaderoReading
 } from './firebase/db.js';

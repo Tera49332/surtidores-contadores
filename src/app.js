@@ -4,6 +4,7 @@ import { renderDashboard } from './pages/dashboard.js';
 import { renderRegisterPage } from './pages/register.js';
 import { renderGasRegisterPage } from './pages/gas-register.js';
 import { renderGasDeliveryPage } from './pages/gas-delivery.js';
+import { renderLavaderoRegisterPage } from './pages/lavadero-register.js';
 import { renderHistoryPage } from './pages/history.js';
 import { renderReportPage } from './pages/report.js';
 import { migrateLocalDataToFirebase } from './db.js';
@@ -74,8 +75,8 @@ export function initApp() {
     const activeItem = navElement.querySelector(`[data-target="${target}"]`);
     if (activeItem) activeItem.classList.add('active');
     
-    // Hide nav on login, register, gas-register, gas-delivery, or menu for admin
-    if (target === 'login' || target === 'register' || target === 'gas-register' || target === 'gas-delivery' || target === 'menu') {
+    // Hide nav on login, register, gas-register, gas-delivery, lavadero-register, or menu for admin
+    if (target === 'login' || target === 'register' || target === 'gas-register' || target === 'gas-delivery' || target === 'lavadero-register' || target === 'menu') {
       navElement.style.display = 'none';
     } else {
       navElement.style.display = 'flex';
@@ -97,8 +98,8 @@ export function initApp() {
       return;
     }
     
-    // Protección de rutas: el operador solo puede estar en #menu, #register, #gas-register, #gas-delivery o #login
-    if (auth && isOperator() && !['#menu', '#register', '#gas-register', '#gas-delivery', '#login'].includes(hash)) {
+    // Protección de rutas: el operador solo puede estar en #menu, #register, #gas-register, #gas-delivery, #lavadero-register o #login
+    if (auth && isOperator() && !['#menu', '#register', '#gas-register', '#gas-delivery', '#lavadero-register', '#login'].includes(hash)) {
       if (window.location.hash !== '#menu') {
         window.location.hash = '#menu';
       }
@@ -127,6 +128,9 @@ export function initApp() {
         break;
       case '#gas-delivery':
         pageElement = await renderGasDeliveryPage();
+        break;
+      case '#lavadero-register':
+        pageElement = await renderLavaderoRegisterPage();
         break;
       case '#history':
         pageElement = await renderHistoryPage();

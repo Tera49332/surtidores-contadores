@@ -1,5 +1,5 @@
 import { createHeader } from '../components/header.js';
-import { getActiveBusinessName } from '../utils/constants.js';
+import { getActiveBusinessName, getActiveLavaderoConfig } from '../utils/constants.js';
 import { isAdmin, logout } from '../utils/session.js';
 
 export function renderMenuPage() {
@@ -7,7 +7,32 @@ export function renderMenuPage() {
   container.className = 'page-content menu-page';
 
   const businessName = getActiveBusinessName();
+  const lavaderoConfig = getActiveLavaderoConfig();
   const headerHtml = createHeader('Tareas del Día', isAdmin());
+
+  const lavaderoCardHtml = lavaderoConfig ? `
+      <!-- OPCIÓN 4: CONTADORES LAVADERO KLIN (SOLO 33405) -->
+      <div class="card menu-task-card" onclick="window.location.hash='#lavadero-register'" 
+           style="background: #ffffff; border: 2px solid rgba(0, 188, 212, 0.35); border-radius: 16px; padding: 1.2rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 14px rgba(0, 188, 212, 0.08); display: flex; align-items: center; gap: 1.2rem;">
+        <div style="width: 68px; height: 68px; min-width: 68px; border-radius: 14px; background: rgba(0, 188, 212, 0.12); display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">
+          🚿
+        </div>
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #002B49;">
+              Contadores ${lavaderoConfig.name || 'Lavadero Klin'}
+            </h3>
+            <span style="color: #00838F; font-size: 1.2rem; font-weight: 900;">➔</span>
+          </div>
+          <p style="margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.35;">
+            Toma de contadores de Túnel, Boxes y Aspiradores.
+          </p>
+          <span style="display: inline-block; margin-top: 0.5rem; font-size: 0.75rem; font-weight: 700; background: #e0f7fa; color: #006064; padding: 2px 8px; border-radius: 6px;">
+            ✨ ${lavaderoConfig.name || 'Lavadero Klin'}
+          </span>
+        </div>
+      </div>
+  ` : '';
 
   container.innerHTML = `
     ${headerHtml}
@@ -86,6 +111,8 @@ export function renderMenuPage() {
           </span>
         </div>
       </div>
+
+      ${lavaderoCardHtml}
 
       <div style="margin-top: 1.5rem; text-align: center;">
         <button id="btnMenuLogout" style="background: none; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.75rem 1.5rem; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
