@@ -455,6 +455,7 @@ export const BUSINESSES = [
           name: 'TÚNEL',
           icon: '🚿',
           color: '#00BCD4',
+          accessPin: '22222222',
           counters: [
             { id: 'p1', name: 'Programa 1', short: 'P1', label: 'P1' },
             { id: 'p2', name: 'Programa 2', short: 'P2', label: 'P2' },
@@ -467,6 +468,7 @@ export const BUSINESSES = [
           name: 'BOX 1',
           icon: '🧽',
           color: '#7C4DFF',
+          accessPin: '2222',
           counters: [
             { id: 'eur1', name: '1€', short: '1€', label: '1€ · TIPO 3' },
             { id: 'eur2', name: '2€', short: '2€', label: '2€' },
@@ -479,6 +481,7 @@ export const BUSINESSES = [
           name: 'BOX 2',
           icon: '🧽',
           color: '#E040FB',
+          accessPin: '2222',
           counters: [
             { id: 'eur1', name: '1€', short: '1€', label: '1€ · TIPO 3' },
             { id: 'eur2', name: '2€', short: '2€', label: '2€' },
