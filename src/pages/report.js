@@ -1,8 +1,9 @@
 import { createHeader } from '../components/header.js';
-import { getReadings, getGasReadings } from '../db.js';
+import { getReadings, getGasReadings, getGasDeliveries } from '../db.js';
 import { BUSINESSES, getActiveBusiness, getActiveBusinessName, getActiveServices, getCounterStyle } from '../utils/constants.js';
 import { generateExcelReport, exportGasExcelReport } from '../utils/excel-generator.js';
 import { generateReport as generatePdfReport } from '../utils/pdf-generator.js';
+import { generateGasPdfReport } from '../utils/gas-pdf-generator.js';
 import { formatDate } from '../utils/date-helpers.js';
 import { showToast } from '../components/toast.js';
 import { isAdmin, getActiveBusinessId, setActiveBusinessId } from '../utils/session.js';
@@ -63,17 +64,24 @@ export async function renderReportPage() {
       </div>
 
       <!-- INFORME DE BOMBONAS DE GAS -->
-      <div class="card" style="background: #ffffff; border: 1.5px solid rgba(255, 102, 0, 0.25); border-radius: 12px; padding: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
-        <h4 style="margin: 0 0 0.5rem 0; color: #002B49; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
-          <img src="/images/butano.png" alt="Bombonas" style="height: 24px; width: auto;">
-          <span>Informe de Butano y Propano (${businessName})</span>
+      <div class="card" style="background: #ffffff; border: 1.5px solid rgba(255, 102, 0, 0.3); border-radius: 12px; padding: 1.1rem; box-shadow: 0 2px 8px rgba(255, 102, 0, 0.05);">
+        <h4 style="margin: 0 0 0.4rem 0; color: #002B49; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <img src="/images/butano.png" alt="Bombonas" style="height: 26px; width: auto;">
+          <span>Informe de Ventas de Butano y Propano (${businessName})</span>
         </h4>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.85rem 0; line-height: 1.4;">
-          Exporta el historial de conteos matinales de jaulas (llenas, vacías, huecos y observaciones).
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 1rem 0; line-height: 1.4;">
+          Genera el informe oficial con el balance diario: <strong>unidades vendidas</strong>, descargas de camión, existencias de llenas y estado físico de la jaula.
         </p>
-        <button id="btnGenerateGasExcel" class="btn btn-primary" style="width: 100%; padding: 0.85rem; border-radius: 8px; font-weight: 700; font-size: 1rem; background: #ff6600; border: none; color: #fff; display: flex; align-items: center; justify-content: center; gap: 0.6rem; cursor: pointer; box-shadow: 0 3px 10px rgba(255, 102, 0, 0.25);">
-          <span style="font-size: 1.1rem;">📗</span> Descargar Informe de Bombonas (.xlsx)
-        </button>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+          <button id="btnGenerateGasPdf" class="btn btn-primary" style="width: 100%; padding: 0.95rem; border-radius: 8px; font-weight: 800; font-size: 1.05rem; background: #002B49; border: none; color: #fff; display: flex; align-items: center; justify-content: center; gap: 0.6rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 43, 73, 0.25);">
+            <span style="font-size: 1.2rem;">📄</span> Descargar Informe de Ventas en PDF (.pdf)
+          </button>
+          
+          <button id="btnGenerateGasExcel" class="btn btn-secondary" style="width: 100%; padding: 0.65rem; border-radius: 8px; font-weight: 600; font-size: 0.88rem; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 0.4rem; cursor: pointer;">
+            <span>📗</span> Opcional: Descargar en Excel (.xlsx)
+          </button>
+        </div>
       </div>
 
       <div id="reportSummaryPreview"></div>
@@ -218,6 +226,34 @@ export async function renderReportPage() {
       showToast(`Error al generar PDF: ${err.message}`, 'error');
     }
   });
+
+  const btnGenerateGasPdf = container.querySelector('#btnGenerateGasPdf');
+  if (btnGenerateGasPdf) {
+    btnGenerateGasPdf.addEventListener('click', async () => {
+      try {
+        const gasReadings = await getGasReadings();
+        const gasDeliveries = await getGasDeliveries();
+        const sVal = startDateInput.value;
+        const eVal = endDateInput.value;
+
+        if (gasReadings.length === 0) {
+          showToast('No hay conteos de bombonas registrados', 'warning');
+          return;
+        }
+
+        generateGasPdfReport(
+          gasReadings, 
+          gasDeliveries, 
+          sVal ? new Date(sVal) : null, 
+          eVal ? new Date(eVal) : null
+        );
+        showToast('Informe PDF de ventas generado con éxito', 'success');
+      } catch (err) {
+        console.error('Error al generar PDF de gas:', err);
+        showToast(`Error al generar PDF: ${err.message}`, 'error');
+      }
+    });
+  }
 
   const btnGenerateGasExcel = container.querySelector('#btnGenerateGasExcel');
   if (btnGenerateGasExcel) {

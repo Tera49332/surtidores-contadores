@@ -65,6 +65,28 @@ export function renderMenuPage() {
         </div>
       </div>
 
+      <!-- OPCIÓN 3: DESCARGA DE MERCANCÍA (ALBARÁN) -->
+      <div class="card menu-task-card" onclick="window.location.hash='#gas-delivery'" 
+           style="background: #ffffff; border: 2px solid rgba(16, 124, 65, 0.25); border-radius: 16px; padding: 1.2rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 14px rgba(16, 124, 65, 0.06); display: flex; align-items: center; gap: 1.2rem;">
+        <div style="width: 68px; height: 68px; min-width: 68px; border-radius: 14px; background: rgba(16, 124, 65, 0.08); display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">
+          🚚
+        </div>
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #002B49;">
+              Descarga de Mercancía
+            </h3>
+            <span style="color: #107c41; font-size: 1.2rem; font-weight: 900;">➔</span>
+          </div>
+          <p style="margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.35;">
+            Anotar albarán cuando el camión descarga bombonas llenas.
+          </p>
+          <span style="display: inline-block; margin-top: 0.5rem; font-size: 0.75rem; font-weight: 700; background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 6px;">
+            📦 Albarán Camión
+          </span>
+        </div>
+      </div>
+
       <div style="margin-top: 1.5rem; text-align: center;">
         <button id="btnMenuLogout" style="background: none; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.75rem 1.5rem; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
           <span>🚪</span> Cerrar Sesión / Cambiar PIN

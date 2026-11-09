@@ -1,8 +1,9 @@
 import { createHeader } from '../components/header.js';
-import { getLastTwoReadings, getLatestGasReading } from '../db.js';
+import { getLastTwoReadings, getGasReadings, getGasDeliveries, getLatestGasReading } from '../db.js';
 import { BUSINESSES, getActiveBusiness, getActiveBusinessName, getActiveServices, getCounterStyle } from '../utils/constants.js';
 import { formatDateTime } from '../utils/date-helpers.js';
 import { isAdmin, getActiveBusinessId, setActiveBusinessId } from '../utils/session.js';
+import { calculateGasDailySales } from '../utils/gas-calculator.js';
 
 export async function renderDashboard() {
   const container = document.createElement('div');
@@ -17,6 +18,10 @@ export async function renderDashboard() {
   const currentReading = lastTwo.length > 0 ? lastTwo[0] : null;
   const previousReading = lastTwo.length > 1 ? lastTwo[1] : null;
   const latestGas = await getLatestGasReading();
+  const gasReadings = await getGasReadings();
+  const gasDeliveries = await getGasDeliveries();
+  const { intervals } = calculateGasDailySales(gasReadings, gasDeliveries);
+  const latestInterval = intervals.length > 0 ? intervals[intervals.length - 1] : null;
 
   let contentHtml = '';
 
@@ -47,7 +52,7 @@ export async function renderDashboard() {
 
   contentHtml += businessBannerHtml;
 
-  // Tarjeta de Stock de Bombonas (Butano y Propano)
+  // Tarjeta de Stock y Ventas de Bombonas (Butano y Propano)
   let gasCardHtml = '';
   if (latestGas) {
     const butano = latestGas.data?.butano || { llenas: 0, vacias: 0, huecos: 0, total: 0 };
@@ -83,9 +88,29 @@ export async function renderDashboard() {
             <div style="font-size: 0.8rem; color: #c62828; font-weight: 600;">🔴 ${propano.huecos} Huecos</div>
           </div>
         </div>
-        <div style="margin-top: 0.75rem; text-align: right;">
-          <a href="#gas-register" style="font-size: 0.8rem; font-weight: 700; color: #ff6600; text-decoration: none;">
-            + Nuevo Conteo Matinal ➔
+
+        ${latestInterval ? `
+          <div style="background: #fff8f2; border: 1.5px solid #ffb74d; border-radius: 10px; padding: 0.65rem 0.85rem; margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 0.72rem; font-weight: 800; color: #e65100; text-transform: uppercase;">
+                🔥 Ventas Última Jornada (${latestInterval.dateLabel})
+              </div>
+              <div style="font-size: 0.85rem; font-weight: 700; color: #002B49; margin-top: 2px;">
+                ${latestInterval.butano.sold} Butano | ${latestInterval.propano.sold} Propano
+              </div>
+            </div>
+            <span style="font-size: 1.15rem; font-weight: 900; color: #e65100; background: #ffffff; padding: 2px 8px; border-radius: 6px; border: 1px solid #ffcc80;">
+              ${latestInterval.butano.sold + latestInterval.propano.sold} uds
+            </span>
+          </div>
+        ` : ''}
+
+        <div style="margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border-light);">
+          <a href="#gas-delivery" style="font-size: 0.82rem; font-weight: 700; color: #107c41; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+            <span>🚚</span> + Descarga Camión
+          </a>
+          <a href="#gas-register" style="font-size: 0.82rem; font-weight: 700; color: #ff6600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+            <span>☀️</span> + Conteo Matinal ➔
           </a>
         </div>
       </div>
@@ -100,9 +125,14 @@ export async function renderDashboard() {
             <div style="font-size: 0.75rem; color: var(--text-muted);">Registra el stock matinal de jaula</div>
           </div>
         </div>
-        <button onclick="window.location.hash='#gas-register'" style="background: #ff6600; color: #fff; border: none; border-radius: 8px; padding: 5px 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
-          + Conteo
-        </button>
+        <div style="display: flex; gap: 0.4rem;">
+          <button onclick="window.location.hash='#gas-delivery'" style="background: #107c41; color: #fff; border: none; border-radius: 8px; padding: 5px 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+            + Descarga
+          </button>
+          <button onclick="window.location.hash='#gas-register'" style="background: #ff6600; color: #fff; border: none; border-radius: 8px; padding: 5px 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">
+            + Conteo
+          </button>
+        </div>
       </div>
     `;
   }

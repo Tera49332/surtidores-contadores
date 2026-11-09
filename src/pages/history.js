@@ -1,5 +1,5 @@
 import { createHeader } from '../components/header.js';
-import { getReadings, deleteReading, getGasReadings, deleteGasReading } from '../db.js';
+import { getReadings, deleteReading, getGasReadings, deleteGasReading, getGasDeliveries, deleteGasDelivery } from '../db.js';
 import { BUSINESSES, getActiveBusiness, getActiveBusinessName, getActiveServices, getCounterStyle } from '../utils/constants.js';
 import { showToast } from '../components/toast.js';
 import { jsPDF } from 'jspdf';
@@ -7,6 +7,7 @@ import autoTable from 'jspdf-autotable';
 import { formatDateTime, formatDate } from '../utils/date-helpers.js';
 import { exportSingleReadingExcel, exportSingleGasReadingExcel } from '../utils/excel-generator.js';
 import { isAdmin, getActiveBusinessId, setActiveBusinessId } from '../utils/session.js';
+import { calculateGasDailySales } from '../utils/gas-calculator.js';
 
 function calculateReadingLitres(curr, prev, servicesDef) {
   if (!curr) return null;
@@ -109,6 +110,7 @@ export async function renderHistoryPage() {
 
   let fuelReadings = await getReadings();
   let gasReadings = await getGasReadings();
+  let gasDeliveries = await getGasDeliveries();
 
   function applyFilter(list) {
     const now = new Date();
@@ -303,135 +305,250 @@ export async function renderHistoryPage() {
 
   function renderGasList() {
     listContainer.innerHTML = '';
-    let filtered = applyFilter(gasReadings);
-    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    if (filtered.length === 0) {
-      listContainer.innerHTML = `
-        <div class="empty-state" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted); background: #ffffff; border-radius: 12px; border: 1px dashed var(--border-color);">
-          <div class="empty-icon" style="font-size: 3rem; margin-bottom: 0.5rem;">🟡</div>
-          <p class="empty-subtitle" style="font-weight: 500; font-size: 0.95rem;">No hay conteos de bombonas registrados para ${businessName}</p>
-          <button onclick="window.location.hash='#gas-register'" class="btn btn-primary" style="margin-top: 1rem; padding: 0.7rem 1.2rem; border-radius: 8px; font-weight: 700; background: #ff6600; color: #fff; border: none; cursor: pointer;">
-            + Nuevo Conteo
-          </button>
-        </div>
+    // Calculate daily sales intervals
+    const { intervals } = calculateGasDailySales(gasReadings, gasDeliveries);
+    const intervalMap = {};
+    intervals.forEach(inv => {
+      if (inv.endCount?.id) {
+        intervalMap[inv.endCount.id] = inv;
+      }
+    });
+
+    // Top action bar
+    const actionsDiv = document.createElement('div');
+    actionsDiv.style.display = 'flex';
+    actionsDiv.style.gap = '0.6rem';
+    actionsDiv.style.marginBottom = '0.5rem';
+    actionsDiv.innerHTML = `
+      <button onclick="window.location.hash='#gas-register'" class="btn" 
+              style="flex: 1; padding: 0.65rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; background: #ff6600; color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; box-shadow: 0 2px 6px rgba(255,102,0,0.2);">
+        <span>☀️</span> + Conteo Mañana
+      </button>
+      <button onclick="window.location.hash='#gas-delivery'" class="btn" 
+              style="flex: 1; padding: 0.65rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; background: #107c41; color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; box-shadow: 0 2px 6px rgba(16,124,65,0.2);">
+        <span>🚚</span> + Descarga Camión
+      </button>
+    `;
+    listContainer.appendChild(actionsDiv);
+
+    // Filter and combine items
+    const filteredCounts = applyFilter(gasReadings).map(r => ({ type: 'reading', date: new Date(r.date), data: r }));
+    const filteredDeliveries = applyFilter(gasDeliveries).map(d => ({ type: 'delivery', date: new Date(d.date), data: d }));
+    const combined = [...filteredCounts, ...filteredDeliveries];
+    combined.sort((a, b) => b.date - a.date);
+
+    if (combined.length === 0) {
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className = 'empty-state';
+      emptyDiv.style.cssText = 'text-align: center; padding: 3rem 1rem; color: var(--text-muted); background: #ffffff; border-radius: 12px; border: 1px dashed var(--border-color);';
+      emptyDiv.innerHTML = `
+        <div class="empty-icon" style="font-size: 3rem; margin-bottom: 0.5rem;">🟡</div>
+        <p class="empty-subtitle" style="font-weight: 500; font-size: 0.95rem;">No hay registros de bombonas ni descargas para ${businessName}</p>
       `;
+      listContainer.appendChild(emptyDiv);
       return;
     }
 
-    filtered.forEach(reading => {
-      const dateStr = formatDateTime(reading.date);
-      const b = reading.data?.butano || { llenas: 0, vacias: 0, huecos: 0, total: 0 };
-      const p = reading.data?.propano || { llenas: 0, vacias: 0, huecos: 0, total: 0 };
+    combined.forEach(item => {
+      if (item.type === 'reading') {
+        const reading = item.data;
+        const dateStr = formatDateTime(reading.date);
+        const b = reading.data?.butano || { llenas: 0, vacias: 0, huecos: 0, total: 0 };
+        const p = reading.data?.propano || { llenas: 0, vacias: 0, huecos: 0, total: 0 };
+        const salesInterval = intervalMap[reading.id];
 
-      const card = document.createElement('div');
-      card.className = 'card history-card';
-      card.style.background = '#ffffff';
-      card.style.borderRadius = '12px';
-      card.style.border = '1px solid var(--border-color)';
-      card.style.overflow = 'hidden';
-      card.style.boxShadow = '0 2px 6px rgba(0,0,0,0.03)';
+        const card = document.createElement('div');
+        card.className = 'card history-card';
+        card.style.background = '#ffffff';
+        card.style.borderRadius = '12px';
+        card.style.border = '1px solid var(--border-color)';
+        card.style.overflow = 'hidden';
+        card.style.boxShadow = '0 2px 6px rgba(0,0,0,0.03)';
 
-      card.innerHTML = `
-        <div class="history-card-header" style="padding: 1rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #ffffff;">
-          <div>
-            <div style="font-weight: 800; color: #002B49; font-size: 1.05rem;">📅 ${dateStr}</div>
-            <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">
-              Butano: <strong>${b.total}</strong> | Propano: <strong>${p.total}</strong> botellas
+        card.innerHTML = `
+          <div class="history-card-header" style="padding: 1rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #ffffff;">
+            <div>
+              <div style="font-weight: 800; color: #002B49; font-size: 1.05rem;">📅 ${dateStr}</div>
+              <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">
+                Stock: <strong>${b.llenas}</strong> B / <strong>${p.llenas}</strong> P (Llenas)
+              </div>
+              ${salesInterval ? `
+                <div style="font-size: 0.8rem; font-weight: 800; color: #e65100; margin-top: 3px;">
+                  🔥 Ventas: ${salesInterval.butano.sold} Butano | ${salesInterval.propano.sold} Propano (${salesInterval.butano.sold + salesInterval.propano.sold} total)
+                </div>
+              ` : ''}
             </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <span style="background: rgba(255, 102, 0, 0.1); color: #e65100; font-weight: 800; font-size: 0.85rem; padding: 4px 8px; border-radius: 6px;">
-              ${b.total + p.total} botellas
-            </span>
-            <span class="chevron" style="color: var(--text-muted); font-size: 0.85rem; transition: transform 0.2s;">▼</span>
-          </div>
-        </div>
-
-        <div class="history-card-body" style="display: none; padding: 1rem; border-top: 1px solid var(--border-light); background: #fafbfc;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
-            <div style="background: #fff8f2; border: 1px solid rgba(255, 102, 0, 0.2); border-radius: 10px; padding: 0.7rem 0.85rem;">
-              <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 6px;">
-                <img src="/images/butano.png" alt="Butano" style="height: 24px; width: auto;">
-                <strong style="color: #002B49; font-size: 0.9rem;">Butano</strong>
-              </div>
-              <div style="font-size: 0.82rem; color: #2e7d32; font-weight: 700;">🟢 ${b.llenas} Llenas</div>
-              <div style="font-size: 0.82rem; color: #0277bd; font-weight: 600;">⚪ ${b.vacias} Vacías</div>
-              <div style="font-size: 0.82rem; color: #c62828; font-weight: 600;">🔴 ${b.huecos} Huecos</div>
-              <div style="font-size: 0.82rem; color: #002B49; font-weight: 800; margin-top: 4px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 4px;">
-                Total: ${b.total} ${b.capacity ? `(Cap. ${b.capacity})` : ''}
-              </div>
-            </div>
-
-            <div style="background: #f0f7ff; border: 1px solid rgba(0, 91, 142, 0.2); border-radius: 10px; padding: 0.7rem 0.85rem;">
-              <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 6px;">
-                <img src="/images/propano.png" alt="Propano" style="height: 24px; width: auto;">
-                <strong style="color: #002B49; font-size: 0.9rem;">Propano</strong>
-              </div>
-              <div style="font-size: 0.82rem; color: #2e7d32; font-weight: 700;">🟢 ${p.llenas} Llenas</div>
-              <div style="font-size: 0.82rem; color: #0277bd; font-weight: 600;">⚪ ${p.vacias} Vacías</div>
-              <div style="font-size: 0.82rem; color: #c62828; font-weight: 600;">🔴 ${p.huecos} Huecos</div>
-              <div style="font-size: 0.82rem; color: #002B49; font-weight: 800; margin-top: 4px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 4px;">
-                Total: ${p.total} ${p.capacity ? `(Cap. ${p.capacity})` : ''}
-              </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="background: rgba(255, 102, 0, 0.1); color: #e65100; font-weight: 800; font-size: 0.85rem; padding: 4px 8px; border-radius: 6px;">
+                ${b.total + p.total} botellas
+              </span>
+              <span class="chevron" style="color: var(--text-muted); font-size: 0.85rem; transition: transform 0.2s;">▼</span>
             </div>
           </div>
 
-          ${reading.notes ? `
-            <div style="font-size: 0.85rem; color: var(--text-muted); background: #ffffff; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border-light); margin-bottom: 0.75rem;">
-              <strong>Observaciones:</strong> ${reading.notes}
+          <div class="history-card-body" style="display: none; padding: 1rem; border-top: 1px solid var(--border-light); background: #fafbfc;">
+            ${salesInterval ? `
+              <div style="background: #fff8f2; border: 1.5px solid #ffb74d; border-radius: 10px; padding: 0.75rem 0.85rem; margin-bottom: 0.85rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <strong style="color: #e65100; font-size: 0.88rem;">🔥 Ventas Calculadas de la Jornada:</strong>
+                  <span style="font-size: 0.88rem; font-weight: 900; color: #e65100;">${salesInterval.butano.sold + salesInterval.propano.sold} uds vendidas</span>
+                </div>
+                <div style="font-size: 0.82rem; color: #002B49; line-height: 1.4;">
+                  <div>• <strong>Butano:</strong> ${salesInterval.butano.sold} vendidas (Ini ${salesInterval.butano.initial} + Descarga ${salesInterval.butano.delivered} - Fin ${salesInterval.butano.final})</div>
+                  <div>• <strong>Propano:</strong> ${salesInterval.propano.sold} vendidas (Ini ${salesInterval.propano.initial} + Descarga ${salesInterval.propano.delivered} - Fin ${salesInterval.propano.final})</div>
+                </div>
+              </div>
+            ` : ''}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+              <div style="background: #ffffff; border: 1px solid rgba(255, 102, 0, 0.25); border-radius: 10px; padding: 0.7rem 0.85rem;">
+                <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 6px;">
+                  <img src="/images/butano.png" alt="Butano" style="height: 24px; width: auto;">
+                  <strong style="color: #002B49; font-size: 0.9rem;">Butano</strong>
+                </div>
+                <div style="font-size: 0.82rem; color: #2e7d32; font-weight: 700;">🟢 ${b.llenas} Llenas</div>
+                <div style="font-size: 0.82rem; color: #0277bd; font-weight: 600;">⚪ ${b.vacias} Vacías</div>
+                <div style="font-size: 0.82rem; color: #c62828; font-weight: 600;">🔴 ${b.huecos} Huecos</div>
+                <div style="font-size: 0.82rem; color: #002B49; font-weight: 800; margin-top: 4px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 4px;">
+                  Total: ${b.total} ${b.capacity ? `(Cap. ${b.capacity})` : ''}
+                </div>
+              </div>
+
+              <div style="background: #ffffff; border: 1px solid rgba(0, 91, 142, 0.25); border-radius: 10px; padding: 0.7rem 0.85rem;">
+                <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 6px;">
+                  <img src="/images/propano.png" alt="Propano" style="height: 24px; width: auto;">
+                  <strong style="color: #002B49; font-size: 0.9rem;">Propano</strong>
+                </div>
+                <div style="font-size: 0.82rem; color: #2e7d32; font-weight: 700;">🟢 ${p.llenas} Llenas</div>
+                <div style="font-size: 0.82rem; color: #0277bd; font-weight: 600;">⚪ ${p.vacias} Vacías</div>
+                <div style="font-size: 0.82rem; color: #c62828; font-weight: 600;">🔴 ${p.huecos} Huecos</div>
+                <div style="font-size: 0.82rem; color: #002B49; font-weight: 800; margin-top: 4px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 4px;">
+                  Total: ${p.total} ${p.capacity ? `(Cap. ${p.capacity})` : ''}
+                </div>
+              </div>
             </div>
-          ` : ''}
 
-          <div style="display: flex; gap: 0.5rem; justify-content: flex-end; padding-top: 0.5rem; border-top: 1px solid var(--border-light);">
-            <button class="btn btn-secondary btn-gas-excel" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; font-weight: 700; background: #e8f5e9; color: #107c41; border: 1px solid #a5d6a7; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-              📗 Excel
-            </button>
-            <button class="btn btn-danger btn-gas-delete" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; font-weight: 600; background: var(--error-glow); color: var(--error); border: 1px solid var(--error); cursor: pointer;">
-              🗑️ Eliminar
-            </button>
+            ${reading.notes ? `
+              <div style="font-size: 0.85rem; color: var(--text-muted); background: #ffffff; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border-light); margin-bottom: 0.75rem;">
+                <strong>Observaciones:</strong> ${reading.notes}
+              </div>
+            ` : ''}
+
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; padding-top: 0.5rem; border-top: 1px solid var(--border-light);">
+              <button class="btn btn-secondary btn-gas-excel" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; font-weight: 700; background: #e8f5e9; color: #107c41; border: 1px solid #a5d6a7; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                📗 Excel
+              </button>
+              <button class="btn btn-danger btn-gas-delete" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; font-weight: 600; background: var(--error-glow); color: var(--error); border: 1px solid var(--error); cursor: pointer;">
+                🗑️ Eliminar Conteo
+              </button>
+            </div>
           </div>
-        </div>
-      `;
+        `;
 
-      // Accordion
-      const header = card.querySelector('.history-card-header');
-      const body = card.querySelector('.history-card-body');
-      const chevron = card.querySelector('.chevron');
-      header.addEventListener('click', () => {
-        const isOpen = body.style.display !== 'none';
-        body.style.display = isOpen ? 'none' : 'block';
-        chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
-      });
+        // Accordion
+        const header = card.querySelector('.history-card-header');
+        const body = card.querySelector('.history-card-body');
+        const chevron = card.querySelector('.chevron');
+        header.addEventListener('click', () => {
+          const isOpen = body.style.display !== 'none';
+          body.style.display = isOpen ? 'none' : 'block';
+          chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
 
-      // Excel export
-      card.querySelector('.btn-gas-excel').addEventListener('click', (e) => {
-        e.stopPropagation();
-        try {
-          exportSingleGasReadingExcel(reading, businessName);
-          showToast('Conteo exportado a Excel', 'success');
-        } catch (err) {
-          console.error(err);
-          showToast(`Error al exportar: ${err.message}`, 'error');
-        }
-      });
-
-      // Delete
-      card.querySelector('.btn-gas-delete').addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (confirm(`¿Estás seguro de que deseas eliminar este conteo de bombonas del ${dateStr}?`)) {
+        // Excel export
+        card.querySelector('.btn-gas-excel').addEventListener('click', (e) => {
+          e.stopPropagation();
           try {
-            await deleteGasReading(reading.id);
-            showToast('Conteo eliminado', 'success');
-            gasReadings = await getGasReadings();
-            renderGasList();
+            exportSingleGasReadingExcel(reading, businessName);
+            showToast('Conteo exportado a Excel', 'success');
           } catch (err) {
-            showToast('Error al eliminar', 'error');
+            console.error(err);
+            showToast(`Error al exportar: ${err.message}`, 'error');
           }
-        }
-      });
+        });
 
-      listContainer.appendChild(card);
+        // Delete
+        card.querySelector('.btn-gas-delete').addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (confirm(`¿Estás seguro de que deseas eliminar este conteo de bombonas del ${dateStr}?`)) {
+            try {
+              await deleteGasReading(reading.id);
+              showToast('Conteo eliminado', 'success');
+              gasReadings = await getGasReadings();
+              renderGasList();
+            } catch (err) {
+              showToast('Error al eliminar', 'error');
+            }
+          }
+        });
+
+        listContainer.appendChild(card);
+      } else if (item.type === 'delivery') {
+        const deliv = item.data;
+        const dateStr = formatDateTime(deliv.date);
+        const total = deliv.totalLlenas || ((Number(deliv.butanoLlenas) || 0) + (Number(deliv.propanoLlenas) || 0));
+
+        const card = document.createElement('div');
+        card.className = 'card history-card history-delivery-card';
+        card.style.background = '#ffffff';
+        card.style.borderRadius = '12px';
+        card.style.border = '1.5px solid rgba(16, 124, 65, 0.35)';
+        card.style.overflow = 'hidden';
+        card.style.boxShadow = '0 2px 8px rgba(16, 124, 65, 0.05)';
+
+        card.innerHTML = `
+          <div style="padding: 0.85rem 1rem; display: flex; justify-content: space-between; align-items: center; background: rgba(16, 124, 65, 0.05); border-bottom: 1px solid rgba(16, 124, 65, 0.15);">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                <span style="font-size: 0.72rem; font-weight: 800; background: #e8f5e9; color: #107c41; padding: 2px 7px; border-radius: 5px;">
+                  🚚 DESCARGA CAMIÓN
+                </span>
+                ${deliv.albaran ? `<span style="font-size: 0.78rem; font-weight: 700; color: #002B49;">Albarán: ${deliv.albaran}</span>` : ''}
+              </div>
+              <div style="font-weight: 800; color: #002B49; font-size: 0.95rem; margin-top: 3px;">
+                📅 ${dateStr}
+              </div>
+            </div>
+            <span style="background: #107c41; color: #ffffff; font-weight: 800; font-size: 0.85rem; padding: 4px 9px; border-radius: 6px;">
+              +${total} llenas
+            </span>
+          </div>
+
+          <div style="padding: 0.85rem 1rem; background: #ffffff;">
+            <div style="display: flex; gap: 1.2rem; font-size: 0.88rem; margin-bottom: 0.5rem;">
+              <span style="color: #e65100; font-weight: 700;">🟠 Butano: +${deliv.butanoLlenas || 0} uds</span>
+              <span style="color: #0d47a1; font-weight: 700;">🔵 Propano: +${deliv.propanoLlenas || 0} uds</span>
+            </div>
+            ${deliv.observaciones ? `
+              <div style="font-size: 0.82rem; color: var(--text-muted); background: #f8fafc; padding: 0.4rem 0.6rem; border-radius: 6px; margin-bottom: 0.6rem;">
+                <strong>Nota:</strong> ${deliv.observaciones}
+              </div>
+            ` : ''}
+            <div style="display: flex; justify-content: flex-end; padding-top: 0.4rem; border-top: 1px solid var(--border-light);">
+              <button class="btn btn-danger btn-deliv-delete" style="padding: 0.4rem 0.75rem; font-size: 0.8rem; border-radius: 6px; font-weight: 600; background: var(--error-glow); color: var(--error); border: 1px solid var(--error); cursor: pointer;">
+                🗑️ Eliminar Albarán
+              </button>
+            </div>
+          </div>
+        `;
+
+        card.querySelector('.btn-deliv-delete').addEventListener('click', async () => {
+          if (confirm(`¿Eliminar este albarán de descarga del ${dateStr} (+${total} bombonas)?`)) {
+            try {
+              await deleteGasDelivery(deliv.id);
+              showToast('Albarán eliminado', 'success');
+              gasDeliveries = await getGasDeliveries();
+              renderGasList();
+            } catch (err) {
+              console.error(err);
+              showToast('Error al eliminar albarán', 'error');
+            }
+          }
+        });
+
+        listContainer.appendChild(card);
+      }
     });
   }
 

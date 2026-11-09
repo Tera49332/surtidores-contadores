@@ -27,9 +27,10 @@ export async function renderGasRegisterPage() {
                 style="background: rgba(0, 43, 73, 0.05); border: 1px solid rgba(0, 43, 73, 0.15); border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; font-weight: 700; color: #002B49; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
           <span>←</span> Menú de tareas
         </button>
-        <span style="font-size: 0.8rem; font-weight: 700; color: #ff6600; text-transform: uppercase;">
-          Conteo Matinal
-        </span>
+        <button type="button" onclick="window.location.hash='#gas-delivery'"
+                style="background: rgba(16, 124, 65, 0.08); border: 1px solid rgba(16, 124, 65, 0.25); border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; font-weight: 700; color: #107c41; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
+          <span>🚚</span> Descarga Camión ➔
+        </button>
       </div>
 
       <!-- FECHA Y HORA -->

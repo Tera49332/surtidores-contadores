@@ -20,6 +20,22 @@ function getGasReadingsPath(businessId) {
   return `businesses/${bid}/gas_readings`;
 }
 
+function getGasDeliveriesPath(businessId) {
+  const bid = businessId || getActiveBusinessId() || 'estacion_12589';
+  return `businesses/${bid}/gas_deliveries`;
+}
+
+function getLocalGasDeliveries(businessId) {
+  const bid = businessId || getActiveBusinessId() || 'estacion_12589';
+  const data = localStorage.getItem(`${bid}_gas_deliveries`);
+  return data ? JSON.parse(data) : [];
+}
+
+function setLocalGasDeliveries(deliveries, businessId) {
+  const bid = businessId || getActiveBusinessId() || 'estacion_12589';
+  localStorage.setItem(`${bid}_gas_deliveries`, JSON.stringify(deliveries));
+}
+
 function getConfigPath(businessId) {
   const bid = businessId || getActiveBusinessId() || 'estacion_12589';
   return `businesses/${bid}/config`;
@@ -228,6 +244,74 @@ export async function deleteGasReading(id) {
     }
   } catch (error) {
     console.error('Error deleting gas reading:', error);
+    throw error;
+  }
+}
+
+export async function saveGasDelivery(deliveryData) {
+  try {
+    const id = deliveryData.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'deliv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
+    const timestamp = toFirestoreDate(deliveryData.date || new Date());
+    const dataToSave = { ...deliveryData, id, date: timestamp };
+
+    if (isLocalMode) {
+      const deliveries = getLocalGasDeliveries();
+      deliveries.push(dataToSave);
+      setLocalGasDeliveries(deliveries);
+      return id;
+    } else {
+      const path = getGasDeliveriesPath();
+      await setDoc(doc(db, path, id), dataToSave);
+      return id;
+    }
+  } catch (error) {
+    console.error('Error saving gas delivery:', error);
+    throw error;
+  }
+}
+
+export async function getGasDeliveries(startDate, endDate) {
+  try {
+    if (isLocalMode) {
+      let deliveries = getLocalGasDeliveries();
+      if (startDate) {
+        deliveries = deliveries.filter(d => new Date(d.date) >= new Date(startDate));
+      }
+      if (endDate) {
+        deliveries = deliveries.filter(d => new Date(d.date) <= new Date(endDate));
+      }
+      deliveries.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return deliveries.map(d => ({ ...d, date: fromFirestoreDate(d.date) }));
+    } else {
+      const path = getGasDeliveriesPath();
+      const qConstraints = [orderBy('date', 'desc')];
+      if (startDate) qConstraints.push(where('date', '>=', toFirestoreDate(startDate)));
+      if (endDate) qConstraints.push(where('date', '<=', toFirestoreDate(endDate)));
+      
+      const q = query(collection(db, path), ...qConstraints);
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return { ...data, date: fromFirestoreDate(data.date) };
+      });
+    }
+  } catch (error) {
+    console.error('Error getting gas deliveries:', error);
+    return [];
+  }
+}
+
+export async function deleteGasDelivery(id) {
+  try {
+    if (isLocalMode) {
+      const deliveries = getLocalGasDeliveries().filter(d => d.id !== id);
+      setLocalGasDeliveries(deliveries);
+    } else {
+      const path = getGasDeliveriesPath();
+      await deleteDoc(doc(db, path, id));
+    }
+  } catch (error) {
+    console.error('Error deleting gas delivery:', error);
     throw error;
   }
 }
