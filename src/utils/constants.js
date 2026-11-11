@@ -470,7 +470,7 @@ export const BUSINESSES = [
           color: '#7C4DFF',
           accessPin: '2222',
           counters: [
-            { id: 'eur1', name: '1€', short: '1€', label: 'Tipo 3' },
+            { id: 'eur1', name: '1€', short: '1€', label: 'Tipo 2' },
             { id: 'fichas', name: 'Fichas', short: 'FICHAS', label: 'Tipo 4' },
             { id: 'klin', name: 'KLIN', short: 'KLIN', label: 'Recau. Pulsos' },
             { id: 'eur2', name: '2€', short: '2€', label: '2€', hidden: true }
@@ -483,7 +483,7 @@ export const BUSINESSES = [
           color: '#E040FB',
           accessPin: '2222',
           counters: [
-            { id: 'eur1', name: '1€', short: '1€', label: 'Tipo 3' },
+            { id: 'eur1', name: '1€', short: '1€', label: 'Tipo 2' },
             { id: 'fichas', name: 'Fichas', short: 'FICHAS', label: 'Tipo 4' },
             { id: 'klin', name: 'KLIN', short: 'KLIN', label: 'Recau. Pulsos' },
             { id: 'eur2', name: '2€', short: '2€', label: '2€', hidden: true }
