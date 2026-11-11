@@ -5,6 +5,7 @@ export const BUSINESSES = [
     name: 'ESTACIÓN 12589',
     code: '12589',
     pin: '12589',
+    usePrefix3: false,
     services: [
       {
         id: 'calle1',
@@ -94,6 +95,7 @@ export const BUSINESSES = [
     name: 'ESTACIÓN 96544',
     code: '96544',
     pin: '96544',
+    usePrefix3: true,
     services: [
       {
         id: 'calle1',
@@ -249,6 +251,7 @@ export const BUSINESSES = [
     name: 'ESTACIÓN 34081',
     code: '34081',
     pin: '34081',
+    usePrefix3: false,
     services: [
       {
         id: 'calle1',
@@ -320,6 +323,7 @@ export const BUSINESSES = [
     name: 'ESTACIÓN 6082',
     code: '6082',
     pin: '06082',
+    usePrefix3: false,
     services: [],
     gasConfig: {
       butano: { id: 'butano', name: 'Butano (normal)', capacity: null, iconImg: '/images/butano.png', color: '#ff6600', textColor: '#ffffff' },
@@ -331,6 +335,7 @@ export const BUSINESSES = [
     name: 'ESTACIÓN 33405',
     code: '33405',
     pin: '33405',
+    usePrefix3: true,
     services: [
       {
         id: 'calle1',

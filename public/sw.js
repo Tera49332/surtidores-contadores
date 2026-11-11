@@ -1,4 +1,4 @@
-const CACHE_NAME = 'surtidores-repsol-v9';
+const CACHE_NAME = 'surtidores-repsol-v10';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
