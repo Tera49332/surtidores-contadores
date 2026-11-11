@@ -19,7 +19,7 @@ export function createHeader(title, showBack = false) {
       </div>
 
       <div style="display: flex; align-items: center; gap: 0.6rem;">
-        <img src="/repsol-logo.jpg" alt="Repsol" style="height: 38px; width: auto; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">
+        <img src="/repsol-logo.jpg" alt="Repsol" style="height: 38px; width: 38px; border-radius: 8px; object-fit: cover; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">
         <div style="display: flex; flex-direction: column; text-align: left;">
           <span style="font-size: 1.05rem; font-weight: 900; letter-spacing: 1.5px; color: #002B49; line-height: 1;">CONTADORES</span>
           <span style="font-size: 0.75rem; font-weight: 700; color: #ff6600; letter-spacing: 0.4px;">${title}</span>

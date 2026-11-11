@@ -14,9 +14,11 @@ export function renderLoginPage(onSuccess) {
       }
       .shake { animation: shake 0.5s; }
       .login-logo { 
-        width: 120px; 
-        height: auto; 
-        margin: 1.5rem auto 0.5rem; 
+        width: 110px; 
+        height: 110px; 
+        object-fit: cover;
+        border-radius: 22px;
+        margin: 1.5rem auto 0.6rem; 
         display: block;
         filter: drop-shadow(0 4px 10px rgba(0, 43, 73, 0.15));
       }
