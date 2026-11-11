@@ -1,7 +1,7 @@
 import { createHeader } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { getLatestReading, saveReading } from '../db.js';
-import { getActiveServices, getActiveBusinessName, getCounterStyle } from '../utils/constants.js';
+import { getActiveBusiness, getActiveServices, getActiveBusinessName, getCounterStyle } from '../utils/constants.js';
 import { isAdmin, logout } from '../utils/session.js';
 import { formatDateTime } from '../utils/date-helpers.js';
 
@@ -9,6 +9,8 @@ export async function renderRegisterPage() {
   const container = document.createElement('div');
   container.className = 'page-content register-page';
 
+  const activeBusiness = getActiveBusiness();
+  const usePrefix3 = activeBusiness.usePrefix3 !== false;
   const businessName = getActiveBusinessName();
   const headerHtml = createHeader(isAdmin() ? 'Nueva Toma de Contadores' : 'Toma de Contadores', isAdmin());
   const servicesDef = getActiveServices();
@@ -69,7 +71,9 @@ export async function renderRegisterPage() {
       const unit = counterObj.unit || 'L';
       const prevVal = latestReading?.data?.[service.name]?.[counter] ?? 0;
       const prevIntStr = prevVal > 0 ? String(Math.trunc(prevVal)) : '';
-      const prefix3 = prevIntStr.length >= 3 ? prevIntStr.slice(0, 3) : prevIntStr;
+      const prefix3 = usePrefix3 ? (prevIntStr.length >= 3 ? prevIntStr.slice(0, 3) : prevIntStr) : '';
+      const initialInputVal = usePrefix3 ? prefix3 : (prevVal > 0 ? prevVal : '');
+      const inputPlaceholder = usePrefix3 ? (prevVal > 0 ? prevVal : '0.00') : '0';
       const cStyle = getCounterStyle(service, counterObj);
       
       const counterBadgeHtml = counterObj.product ? `
@@ -78,7 +82,7 @@ export async function renderRegisterPage() {
         </span>
       ` : '';
 
-      const prefixBadgeHtml = prefix3 ? `
+      const prefixBadgeHtml = (usePrefix3 && prefix3) ? `
         <span style="font-size: 0.74rem; font-weight: 800; color: #002B49; background: #e3f2fd; border: 1px solid #90caf9; padding: 1px 6px; border-radius: 5px; letter-spacing: 0.5px;" title="Primeros 3 dígitos del contador">
           🔢 ${prefix3}…
         </span>
@@ -105,8 +109,9 @@ export async function renderRegisterPage() {
                    data-counter="${counter}" 
                    data-prev="${prevVal}" 
                    data-prefix="${prefix3}"
-                   value="${prefix3}" 
-                   placeholder="${prevVal > 0 ? prevVal : '0.00'}" 
+                   data-use-prefix="${usePrefix3 ? '1' : '0'}"
+                   value="${initialInputVal}" 
+                   placeholder="${inputPlaceholder}" 
                    style="background: #ffffff; border: 1.5px solid #002B49; border-radius: 8px; padding: 0.8rem; padding-right: 2.5rem; color: var(--text-main); font-size: 1.1rem; font-weight: 700; width: 100%; box-sizing: border-box;">
             <span style="position: absolute; right: 0.85rem; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; pointer-events: none;">${unit}</span>
           </div>
@@ -127,15 +132,22 @@ export async function renderRegisterPage() {
 
   container.innerHTML = headerHtml + formHtml;
 
-  // Place cursor at the end of the 3 pre-filled digits on focus (without selecting/deleting them)
+  // Focus behavior depending on whether station uses 3-digit prefix or clear-on-focus (e.g., 33885)
   container.querySelectorAll('.input-counter').forEach(input => {
     input.addEventListener('focus', () => {
-      setTimeout(() => {
-        try {
-          const len = input.value.length;
-          input.setSelectionRange(len, len);
-        } catch (e) {}
-      }, 0);
+      if (input.dataset.usePrefix === '1') {
+        setTimeout(() => {
+          try {
+            const len = input.value.length;
+            input.setSelectionRange(len, len);
+          } catch (e) {}
+        }, 0);
+      } else {
+        // Estación sin prefijo de 3 dígitos (ej. 33885): al pulsar se pone a 0 (vacía con placeholder 0) para meter la nueva lectura
+        if (input.value === String(input.dataset.prev)) {
+          input.value = '';
+        }
+      }
     });
   });
 
