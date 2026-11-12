@@ -97,6 +97,22 @@ export async function saveReading(readingData) {
   }
 }
 
+// Solo para admin: corrige los valores (data) de una lectura ya guardada
+export async function updateReadingData(id, newData) {
+  try {
+    if (isLocalMode) {
+      const readings = getLocalReadings().map(r => r.id === id ? { ...r, data: newData, editedAt: new Date().toISOString() } : r);
+      setLocalReadings(readings);
+    } else {
+      const path = getReadingsPath();
+      await setDoc(doc(db, path, id), { data: newData, editedAt: new Date().toISOString() }, { merge: true });
+    }
+  } catch (error) {
+    console.error('Error updating reading:', error);
+    throw error;
+  }
+}
+
 export async function getReadings(startDate, endDate) {
   try {
     if (isLocalMode) {

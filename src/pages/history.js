@@ -1,5 +1,5 @@
 import { createHeader } from '../components/header.js';
-import { getReadings, deleteReading, getGasReadings, deleteGasReading, getGasDeliveries, deleteGasDelivery } from '../db.js';
+import { getReadings, updateReadingData, deleteReading, getGasReadings, deleteGasReading, getGasDeliveries, deleteGasDelivery } from '../db.js';
 import { BUSINESSES, getActiveBusiness, getActiveBusinessName, getActiveServices, getCounterStyle } from '../utils/constants.js';
 import { showToast } from '../components/toast.js';
 import { jsPDF } from 'jspdf';
@@ -124,6 +124,70 @@ export async function renderHistoryPage() {
     return [...list];
   }
 
+  function openEditModal(reading) {
+    if (!isAdmin()) return;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem;';
+
+    let fieldsHtml = '';
+    servicesDef.forEach((srv, si) => {
+      let rows = '';
+      srv.counters.forEach((cntObj, ci) => {
+        const cnt = cntObj.short || cntObj.name;
+        const val = reading.data?.[srv.name]?.[cnt] ?? 0;
+        rows += `
+          <label style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.25rem 0; font-size: 0.85rem;">
+            <span>${cnt}</span>
+            <input type="number" step="any" inputmode="decimal" data-srv="${si}" data-cnt="${ci}" value="${val}" style="width: 150px; padding: 6px 8px; border: 1.5px solid var(--border-color); border-radius: 6px; font-weight: 700; text-align: right;">
+          </label>`;
+      });
+      fieldsHtml += `
+        <div style="border: 1px solid var(--border-light); border-radius: 8px; padding: 0.5rem 0.75rem; margin-bottom: 0.5rem;">
+          <strong style="color: #002B49;">${srv.icon || ''} ${srv.name}</strong>
+          ${rows}
+        </div>`;
+    });
+
+    overlay.innerHTML = `
+      <div style="background: #fff; border-radius: 14px; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; padding: 1rem;">
+        <h3 style="margin: 0 0 0.25rem; color: #002B49;">✏️ Editar lectura</h3>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">${businessName} · ${formatDateTime(reading.date)}</div>
+        ${fieldsHtml}
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.75rem;">
+          <button class="btn-cancel" style="padding: 0.55rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: #fff; cursor: pointer; font-weight: 600;">Cancelar</button>
+          <button class="btn-save" style="padding: 0.55rem 1rem; border-radius: 8px; border: none; background: #e65100; color: #fff; cursor: pointer; font-weight: 800;">Guardar cambios</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('.btn-cancel').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', (ev) => { if (ev.target === overlay) overlay.remove(); });
+    overlay.querySelector('.btn-save').addEventListener('click', async () => {
+      const newData = JSON.parse(JSON.stringify(reading.data || {}));
+      let valid = true;
+      overlay.querySelectorAll('input[data-srv]').forEach(inp => {
+        const srv = servicesDef[Number(inp.dataset.srv)];
+        const cntObj = srv.counters[Number(inp.dataset.cnt)];
+        const cnt = cntObj.short || cntObj.name;
+        const num = Number(inp.value);
+        if (inp.value === '' || isNaN(num)) { valid = false; inp.style.borderColor = 'var(--error)'; return; }
+        if (!newData[srv.name]) newData[srv.name] = {};
+        newData[srv.name][cnt] = num;
+      });
+      if (!valid) { showToast('Revisa los valores: hay campos vacíos o no numéricos', 'error'); return; }
+      try {
+        await updateReadingData(reading.id, newData);
+        showToast('Lectura corregida', 'success');
+        overlay.remove();
+        fuelReadings = await getReadings();
+        renderFuelList();
+      } catch (err) {
+        console.error(err);
+        showToast('Error al guardar los cambios', 'error');
+      }
+    });
+  }
+
   function renderFuelList() {
     listContainer.innerHTML = '';
     const sortedChronological = [...fuelReadings].sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -240,12 +304,24 @@ export async function renderHistoryPage() {
             <button class="btn btn-secondary btn-print" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; font-weight: 600; cursor: pointer;">
               📄 PDF
             </button>
+            ${isAdmin() ? `<button class="btn btn-secondary btn-edit" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; font-weight: 700; background: #fff3e0; color: #e65100; border: 1px solid #ffb74d; cursor: pointer;">
+              ✏️ Editar
+            </button>` : ''}
             <button class="btn btn-danger btn-delete" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 6px; font-weight: 600; background: var(--error-glow); color: var(--error); border: 1px solid var(--error); cursor: pointer;">
               🗑️ Eliminar
             </button>
           </div>
         </div>
       `;
+
+      // Admin: edit reading values
+      const btnEdit = card.querySelector('.btn-edit');
+      if (btnEdit) {
+        btnEdit.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openEditModal(reading);
+        });
+      }
 
       // Accordion toggle
       const header = card.querySelector('.history-card-header');
