@@ -1,17 +1,27 @@
 import { createHeader } from '../components/header.js';
-import { getActiveBusinessName, getActiveLavaderoConfig } from '../utils/constants.js';
+import { getActiveBusiness, getActiveBusinessName, getActiveLavaderoConfig } from '../utils/constants.js';
 import { isAdmin, logout } from '../utils/session.js';
 
 export function renderMenuPage() {
   const container = document.createElement('div');
   container.className = 'page-content menu-page';
 
+  const business = getActiveBusiness();
   const businessName = getActiveBusinessName();
   const lavaderoConfig = getActiveLavaderoConfig();
   const headerHtml = createHeader('Tareas del Día', isAdmin());
 
+  // Configuración horaria de conteo de bombonas (ej. 06082 se hace por la noche/cierre)
+  const isNightGas = business?.code === '6082' || business?.pin === '06082' || business?.gasConfig?.isNightCount;
+  const gasSubtitle = isNightGas 
+    ? 'Conteo nocturno de bombonas: llenas, vacías y huecos de jaula.' 
+    : 'Conteo matinal de bombonas: llenas, vacías y huecos de jaula.';
+  const gasBadgeText = isNightGas ? '🌙 Noche / Cierre' : '☀️ Primera hora / Mañana';
+  const gasBadgeBg = isNightGas ? '#ede7f6' : '#fff3e0';
+  const gasBadgeColor = isNightGas ? '#4527a0' : '#e65100';
+
   const lavaderoCardHtml = lavaderoConfig ? `
-      <!-- OPCIÓN 4: CONTADORES LAVADERO KLIN (SOLO 33405) -->
+      <!-- OPCIÓN 4: CONTADORES LAVADERO -->
       <div class="card menu-task-card" onclick="window.location.hash='#lavadero-register'" 
            style="background: #ffffff; border: 2px solid rgba(0, 188, 212, 0.35); border-radius: 16px; padding: 1.2rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 14px rgba(0, 188, 212, 0.08); display: flex; align-items: center; gap: 1.2rem;">
         <div style="width: 68px; height: 68px; min-width: 68px; border-radius: 14px; background: rgba(0, 188, 212, 0.12); display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">
@@ -20,7 +30,7 @@ export function renderMenuPage() {
         <div style="flex: 1;">
           <div style="display: flex; align-items: center; justify-content: space-between;">
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #002B49;">
-              Contadores ${lavaderoConfig.name || 'Lavadero Klin'}
+              Contadores ${lavaderoConfig.name || 'Lavadero'}
             </h3>
             <span style="color: #00838F; font-size: 1.2rem; font-weight: 900;">➔</span>
           </div>
@@ -28,7 +38,7 @@ export function renderMenuPage() {
             Toma de contadores de Túnel, Boxes y Aspiradores.
           </p>
           <span style="display: inline-block; margin-top: 0.5rem; font-size: 0.75rem; font-weight: 700; background: #e0f7fa; color: #006064; padding: 2px 8px; border-radius: 6px;">
-            ✨ ${lavaderoConfig.name || 'Lavadero Klin'}
+            ✨ ${lavaderoConfig.name || 'Lavadero'}
           </span>
         </div>
       </div>
@@ -82,10 +92,10 @@ export function renderMenuPage() {
             <span style="color: #ff6600; font-size: 1.2rem; font-weight: 900;">➔</span>
           </div>
           <p style="margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.35;">
-            Conteo matinal de bombonas: llenas, vacías y huecos de jaula.
+            ${gasSubtitle}
           </p>
-          <span style="display: inline-block; margin-top: 0.5rem; font-size: 0.75rem; font-weight: 700; background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 6px;">
-            ☀️ Primera hora / Mañana
+          <span style="display: inline-block; margin-top: 0.5rem; font-size: 0.75rem; font-weight: 700; background: ${gasBadgeBg}; color: ${gasBadgeColor}; padding: 2px 8px; border-radius: 6px;">
+            ${gasBadgeText}
           </span>
         </div>
       </div>

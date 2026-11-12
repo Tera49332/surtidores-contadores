@@ -261,7 +261,7 @@ export async function renderGasRegisterPage() {
       );
       if (!proceed) return;
     } else {
-      if (!confirm('¿Confirmas guardar el recuento matinal de bombonas?')) return;
+      if (!confirm('¿Confirmas guardar el recuento de bombonas?')) return;
     }
 
     const submitBtn = container.querySelector('#btnSubmitGas');

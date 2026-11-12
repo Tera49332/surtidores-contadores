@@ -363,12 +363,13 @@ export const BUSINESSES = [
       }
     ],
     gasConfig: {
+      isNightCount: true,
       butano: { id: 'butano', name: 'Butano (normal)', capacity: null, iconImg: '/images/butano.png', color: '#ff6600', textColor: '#ffffff' },
       propano: { id: 'propano', name: 'Propano (11kg)', capacity: null, iconImg: '/images/propano.png', color: '#005b8e', textColor: '#ffffff' }
     },
     lavaderoConfig: {
       firestoreId: '06082',
-      name: 'Lavadero 06082',
+      name: 'Lavadero',
       services: [
         {
           id: 'aspiradores',
