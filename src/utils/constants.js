@@ -324,7 +324,44 @@ export const BUSINESSES = [
     code: '6082',
     pin: '06082',
     usePrefix3: false,
-    services: [],
+    services: [
+      {
+        id: 'calle1',
+        name: 'Calle 1',
+        icon: '⛽',
+        counters: [
+          { id: 'diesele', name: 'Diesel e+', short: 'Diesel e+', product: 'Diesel e+', color: '#1a1a1a', textColor: '#ffffff', unit: 'L' }
+        ]
+      },
+      {
+        id: 'calle2',
+        name: 'Calle 2',
+        icon: '⛽',
+        counters: [
+          { id: 'diesele', name: 'Diesel e+', short: 'Diesel e+', product: 'Diesel e+', color: '#1a1a1a', textColor: '#ffffff', unit: 'L' }
+        ]
+      },
+      {
+        id: 'calle3',
+        name: 'Calle 3',
+        icon: '⛽',
+        counters: [
+          { id: 'gna98', name: 'Gna 98', short: 'Gna 98', product: 'Gna 98', color: '#1b5e20', textColor: '#ffffff', unit: 'L' },
+          { id: 'gna95', name: 'Gna 95', short: 'Gna 95', product: 'Gna 95', color: '#43a047', textColor: '#ffffff', unit: 'L' },
+          { id: 'diesele10', name: 'Diesel e+ 10', short: 'Diesel e+ 10', product: 'Diesel e+ 10', color: '#c59b27', textColor: '#ffffff', unit: 'L' }
+        ]
+      },
+      {
+        id: 'calle4',
+        name: 'Calle 4',
+        icon: '⛽',
+        counters: [
+          { id: 'diesele10', name: 'Diesel e+ 10', short: 'Diesel e+ 10', product: 'Diesel e+ 10', color: '#c59b27', textColor: '#ffffff', unit: 'L' },
+          { id: 'gna95', name: 'Gna 95', short: 'Gna 95', product: 'Gna 95', color: '#43a047', textColor: '#ffffff', unit: 'L' },
+          { id: 'gna98', name: 'Gna 98', short: 'Gna 98', product: 'Gna 98', color: '#1b5e20', textColor: '#ffffff', unit: 'L' }
+        ]
+      }
+    ],
     gasConfig: {
       butano: { id: 'butano', name: 'Butano (normal)', capacity: null, iconImg: '/images/butano.png', color: '#ff6600', textColor: '#ffffff' },
       propano: { id: 'propano', name: 'Propano (11kg)', capacity: null, iconImg: '/images/propano.png', color: '#005b8e', textColor: '#ffffff' }
