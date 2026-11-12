@@ -320,7 +320,7 @@ export const BUSINESSES = [
   },
   {
     id: 'estacion_6082',
-    name: 'ESTACIÓN 6082',
+    name: 'ESTACIÓN 06082',
     code: '6082',
     pin: '06082',
     usePrefix3: false,
@@ -328,6 +328,57 @@ export const BUSINESSES = [
     gasConfig: {
       butano: { id: 'butano', name: 'Butano (normal)', capacity: null, iconImg: '/images/butano.png', color: '#ff6600', textColor: '#ffffff' },
       propano: { id: 'propano', name: 'Propano (11kg)', capacity: null, iconImg: '/images/propano.png', color: '#005b8e', textColor: '#ffffff' }
+    },
+    lavaderoConfig: {
+      firestoreId: '06082',
+      name: 'Lavadero 06082',
+      services: [
+        {
+          id: 'aspiradores',
+          name: 'ASPIRADORES',
+          icon: '💨',
+          color: '#FF7043',
+          counters: [
+            { id: 'carretera', name: 'Carretera', short: 'CARRETERA', label: 'Carretera' },
+            { id: 'piedras', name: 'Piedras', short: 'PIEDRAS', label: 'Piedras' }
+          ]
+        },
+        {
+          id: 'box1_medio',
+          name: 'BOX 1 MEDIO',
+          icon: '🧽',
+          color: '#7C4DFF',
+          counters: [
+            { id: 'cnt2', name: '#2', short: '#2', label: '#2' },
+            { id: 'cnt3', name: '#3', short: '#3', label: '#3' },
+            { id: 'cnt4', name: '#4', short: '#4', label: '#4' },
+            { id: 'cnt5', name: '#5', short: '#5', label: '#5' }
+          ]
+        },
+        {
+          id: 'box2_carretera',
+          name: 'BOX 2 CARRETERA',
+          icon: '🧽',
+          color: '#E040FB',
+          counters: [
+            { id: 'cnt2', name: '#2', short: '#2', label: '#2' },
+            { id: 'cnt3', name: '#3', short: '#3', label: '#3' },
+            { id: 'cnt4', name: '#4', short: '#4', label: '#4' },
+            { id: 'cnt5', name: '#5', short: '#5', label: '#5' }
+          ]
+        },
+        {
+          id: 'tunel',
+          name: 'TÚNEL',
+          icon: '🚿',
+          color: '#00BCD4',
+          counters: [
+            { id: 'o1', name: 'O1', short: 'O1', label: 'O1' },
+            { id: 'o2', name: 'O2', short: 'O2', label: 'O2' },
+            { id: 'o7', name: 'O7', short: 'O7', label: 'O7' }
+          ]
+        }
+      ]
     }
   },
   {

@@ -14,7 +14,8 @@ export async function renderLavaderoRegisterPage() {
     return container;
   }
 
-  const headerHtml = createHeader(lavaderoConfig.name || 'Lavadero Klin', true);
+  const lavaderoTitle = (lavaderoConfig.name || 'Lavadero').toUpperCase();
+  const headerHtml = createHeader(lavaderoConfig.name || 'Lavadero', true);
   const servicesDef = lavaderoConfig.services || [];
   const latestReading = await getLatestLavaderoReading();
 
@@ -25,8 +26,8 @@ export async function renderLavaderoRegisterPage() {
           🚿
         </div>
         <div>
-          <h2 style="margin: 0; font-size: 1.15rem; font-weight: 900; letter-spacing: 0.5px;">CONTADORES LAVADERO KLIN</h2>
-          <p style="margin: 0.2rem 0 0; font-size: 0.82rem; opacity: 0.9;">Introduce la lectura actual de Túnel, Boxes y Aspiradores</p>
+          <h2 style="margin: 0; font-size: 1.15rem; font-weight: 900; letter-spacing: 0.5px;">CONTADORES ${lavaderoTitle}</h2>
+          <p style="margin: 0.2rem 0 0; font-size: 0.82rem; opacity: 0.9;">Introduce la lectura actual de máquinas y pistas</p>
         </div>
       </div>
     </div>
@@ -140,7 +141,7 @@ export async function renderLavaderoRegisterPage() {
       );
       if (!proceed) return;
     } else {
-      if (!confirm('¿Guardar este registro de contadores del Lavadero Klin?')) return;
+      if (!confirm(`¿Guardar este registro de contadores de ${lavaderoConfig.name || 'Lavadero'}?`)) return;
     }
 
     const submitBtn = container.querySelector('#btnSubmitLavadero');
@@ -158,7 +159,7 @@ export async function renderLavaderoRegisterPage() {
 
     try {
       await saveLavaderoReading(readingData);
-      showToast('Contadores de Lavadero Klin guardados correctamente', 'success');
+      showToast(`Contadores de ${lavaderoConfig.name || 'Lavadero'} guardados correctamente`, 'success');
       window.location.hash = isOperator() ? '#menu' : '#dashboard';
     } catch (err) {
       console.error('Error al guardar registro de lavadero:', err);
