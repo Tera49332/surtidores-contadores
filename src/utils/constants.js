@@ -383,7 +383,7 @@ export const BUSINESSES = [
         },
         {
           id: 'box1_medio',
-          name: 'BOX 1 MEDIO',
+          name: 'BOX1 MEDIO',
           icon: '🧽',
           color: '#7C4DFF',
           counters: [
@@ -395,7 +395,7 @@ export const BUSINESSES = [
         },
         {
           id: 'box2_carretera',
-          name: 'BOX 2 CARRETERA',
+          name: 'BOX2 CARRETERA',
           icon: '🧽',
           color: '#E040FB',
           counters: [
@@ -407,7 +407,7 @@ export const BUSINESSES = [
         },
         {
           id: 'tunel',
-          name: 'TÚNEL',
+          name: 'TUNEL',
           icon: '🚿',
           color: '#00BCD4',
           counters: [
