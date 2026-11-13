@@ -66,14 +66,16 @@ export async function renderRegisterPage() {
         <div class="section-content" style="padding: 1rem; display: flex; flex-direction: column; gap: 0.85rem;">
     `;
 
+    const serviceUsePrefix3 = service.usePrefix3 !== undefined ? service.usePrefix3 : usePrefix3;
+
     service.counters.forEach(counterObj => {
       const counter = counterObj.short || counterObj.name;
       const unit = counterObj.unit || 'L';
       const prevVal = latestReading?.data?.[service.name]?.[counter] ?? 0;
       const prevIntStr = prevVal > 0 ? String(Math.trunc(prevVal)) : '';
-      const prefix3 = usePrefix3 ? (prevIntStr.length >= 3 ? prevIntStr.slice(0, 3) : prevIntStr) : '';
-      const initialInputVal = usePrefix3 ? prefix3 : (prevVal > 0 ? prevVal : '');
-      const inputPlaceholder = usePrefix3 ? (prevVal > 0 ? prevVal : '0.00') : '0';
+      const prefix3 = serviceUsePrefix3 ? (prevIntStr.length >= 3 ? prevIntStr.slice(0, 3) : prevIntStr) : '';
+      const initialInputVal = serviceUsePrefix3 ? prefix3 : (prevVal > 0 ? prevVal : '');
+      const inputPlaceholder = serviceUsePrefix3 ? (prevVal > 0 ? prevVal : '0.00') : '0';
       const cStyle = getCounterStyle(service, counterObj);
       
       const counterBadgeHtml = counterObj.product ? `
@@ -82,7 +84,7 @@ export async function renderRegisterPage() {
         </span>
       ` : '';
 
-      const prefixBadgeHtml = (usePrefix3 && prefix3) ? `
+      const prefixBadgeHtml = (serviceUsePrefix3 && prefix3) ? `
         <span style="font-size: 0.74rem; font-weight: 800; color: #002B49; background: #e3f2fd; border: 1px solid #90caf9; padding: 1px 6px; border-radius: 5px; letter-spacing: 0.5px;" title="Primeros 3 dígitos del contador">
           🔢 ${prefix3}…
         </span>
@@ -109,7 +111,7 @@ export async function renderRegisterPage() {
                    data-counter="${counter}" 
                    data-prev="${prevVal}" 
                    data-prefix="${prefix3}"
-                   data-use-prefix="${usePrefix3 ? '1' : '0'}"
+                   data-use-prefix="${serviceUsePrefix3 ? '1' : '0'}"
                    value="${initialInputVal}" 
                    placeholder="${inputPlaceholder}" 
                    style="background: #ffffff; border: 1.5px solid #002B49; border-radius: 8px; padding: 0.8rem; padding-right: 2.5rem; color: var(--text-main); font-size: 1.1rem; font-weight: 700; width: 100%; box-sizing: border-box;">

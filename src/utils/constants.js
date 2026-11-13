@@ -329,6 +329,7 @@ export const BUSINESSES = [
         id: 'calle1',
         name: 'Calle 1',
         icon: '⛽',
+        usePrefix3: true,
         counters: [
           { id: 'diesele', name: 'Diesel e+', short: 'Diesel e+', product: 'Diesel e+', color: '#1a1a1a', textColor: '#ffffff', unit: 'L' }
         ]
@@ -337,6 +338,7 @@ export const BUSINESSES = [
         id: 'calle2',
         name: 'Calle 2',
         icon: '⛽',
+        usePrefix3: true,
         counters: [
           { id: 'diesele', name: 'Diesel e+', short: 'Diesel e+', product: 'Diesel e+', color: '#1a1a1a', textColor: '#ffffff', unit: 'L' }
         ]
