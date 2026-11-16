@@ -214,9 +214,9 @@ export const BUSINESSES = [
         name: 'Calle 6',
         icon: '⛽',
         counters: [
+          { id: 'diesele', name: 'Diesel e+', short: 'Diesel e+', product: 'Diesel e+', color: '#1a1a1a', textColor: '#ffffff', unit: 'L' },
           { id: 'gna95', name: 'Gna 95', short: 'Gna 95', product: 'Gna 95', color: '#43a047', textColor: '#ffffff', unit: 'L' },
-          { id: 'diesele10', name: 'Diesel e+ 10', short: 'Diesel e+ 10', product: 'Diesel e+ 10', color: '#c59b27', textColor: '#ffffff', unit: 'L' },
-          { id: 'diesele', name: 'Diesel e+', short: 'Diesel e+', product: 'Diesel e+', color: '#1a1a1a', textColor: '#ffffff', unit: 'L' }
+          { id: 'diesele10', name: 'Diesel e+ 10', short: 'Diesel e+ 10', product: 'Diesel e+ 10', color: '#c59b27', textColor: '#ffffff', unit: 'L' }
         ]
       },
       {
@@ -224,9 +224,9 @@ export const BUSINESSES = [
         name: 'Calle 7',
         icon: '⛽',
         counters: [
+          { id: 'diesele', name: 'Diesel e+', short: 'Diesel e+', product: 'Diesel e+', color: '#1a1a1a', textColor: '#ffffff', unit: 'L' },
           { id: 'gna95', name: 'Gna 95', short: 'Gna 95', product: 'Gna 95', color: '#43a047', textColor: '#ffffff', unit: 'L' },
-          { id: 'diesele10', name: 'Diesel e+ 10', short: 'Diesel e+ 10', product: 'Diesel e+ 10', color: '#c59b27', textColor: '#ffffff', unit: 'L' },
-          { id: 'diesele', name: 'Diesel e+', short: 'Diesel e+', product: 'Diesel e+', color: '#1a1a1a', textColor: '#ffffff', unit: 'L' }
+          { id: 'diesele10', name: 'Diesel e+ 10', short: 'Diesel e+ 10', product: 'Diesel e+ 10', color: '#c59b27', textColor: '#ffffff', unit: 'L' }
         ]
       },
       {
