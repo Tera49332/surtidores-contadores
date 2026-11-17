@@ -1,5 +1,5 @@
 import { createHeader } from '../components/header.js';
-import { getLastTwoReadings, getGasReadings, getGasDeliveries, getLatestGasReading } from '../db.js';
+import { getLastTwoReadings, getGasReadings, getGasDeliveries, getLatestGasReading, getLavaderoReadings } from '../db.js';
 import { BUSINESSES, getActiveBusiness, getActiveBusinessName, getActiveServices, getCounterStyle } from '../utils/constants.js';
 import { formatDateTime } from '../utils/date-helpers.js';
 import { isAdmin, getActiveBusinessId, setActiveBusinessId } from '../utils/session.js';
@@ -137,6 +137,85 @@ export async function renderDashboard() {
     `;
   }
   contentHtml += gasCardHtml;
+
+  // Tarjeta de Recaudación Lavadero (SOLO VISIBLE PARA ADMIN)
+  if (isAdmin() && activeBusiness.lavaderoConfig) {
+    const lavConfig = activeBusiness.lavaderoConfig;
+    const hasPrices = (lavConfig.services || []).some(s => (s.counters || []).some(c => typeof c.price === 'number'));
+    if (hasPrices) {
+      const lavReadings = await getLavaderoReadings() || [];
+      lavReadings.sort((a, b) => new Date(b.date) - new Date(a.date));
+      const curLav = lavReadings.length > 0 ? lavReadings[0] : null;
+      const prevLav = lavReadings.length > 1 ? lavReadings[1] : null;
+
+      let lavCardHtml = '';
+      if (curLav && prevLav) {
+        let totalEuros = 0;
+        const serviceBlocks = [];
+
+        for (const s of (lavConfig.services || [])) {
+          let serviceEuros = 0;
+          const rows = [];
+          for (const c of (s.counters || [])) {
+            if (c.hidden) continue;
+            const key = c.short || c.name;
+            const curVal = Number(curLav.data?.[s.name]?.[key]) || 0;
+            const prevVal = Number(prevLav.data?.[s.name]?.[key]) || 0;
+            const diff = Math.max(0, curVal - prevVal);
+            const price = Number(c.price) || 0;
+            const euros = diff * price;
+            serviceEuros += euros;
+            rows.push(`
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; padding: 2px 0; color: var(--text-main);">
+                <span><strong>${c.label || key}</strong>: ${diff} × ${price.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                <span style="font-weight: 700; color: #002B49;">${euros.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+              </div>
+            `);
+          }
+          totalEuros += serviceEuros;
+          serviceBlocks.push(`
+            <div style="background: #f4fbfd; border: 1px solid rgba(0, 188, 212, 0.25); border-radius: 10px; padding: 0.65rem 0.8rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(0, 188, 212, 0.15);">
+                <strong style="font-size: 0.82rem; color: #002B49;">${s.icon || '🚿'} ${s.name}</strong>
+                <strong style="font-size: 0.85rem; color: #00838F;">${serviceEuros.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</strong>
+              </div>
+              ${rows.join('')}
+            </div>
+          `);
+        }
+
+        lavCardHtml = `
+          <div class="card" style="background: #ffffff; border: 1.5px solid rgba(0, 188, 212, 0.35); border-radius: 14px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0, 188, 212, 0.06);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); flex-wrap: wrap; gap: 0.4rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.3rem;">🚿</span>
+                <div>
+                  <strong style="color: #002B49; font-size: 0.95rem;">Recaudación Lavadero (Solo Admin)</strong>
+                  <div style="font-size: 0.72rem; color: var(--text-muted);">${formatDateTime(prevLav.date)} ➔ ${formatDateTime(curLav.date)}</div>
+                </div>
+              </div>
+              <span style="font-size: 1.15rem; font-weight: 900; color: #006064; background: #e0f7fa; padding: 4px 10px; border-radius: 8px; border: 1px solid #80deea;">
+                ${totalEuros.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+              </span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.65rem;">
+              ${serviceBlocks.join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        lavCardHtml = `
+          <div class="card" style="background: #ffffff; border: 1px dashed rgba(0, 188, 212, 0.45); border-radius: 14px; padding: 0.85rem 1rem; margin-bottom: 1rem;">
+            <strong style="color: #002B49; font-size: 0.9rem;">🚿 Recaudación Lavadero (Solo Admin)</strong>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+              ${curLav ? `Última lectura: ${formatDateTime(curLav.date)}. Se necesitan al menos 2 lecturas para calcular la recaudación diaria en €.` : 'Sin lecturas de lavadero registradas todavía.'}
+            </div>
+          </div>
+        `;
+      }
+      contentHtml += lavCardHtml;
+    }
+  }
 
   if (!currentReading) {
     contentHtml += `

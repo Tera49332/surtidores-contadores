@@ -379,8 +379,8 @@ export const BUSINESSES = [
           icon: '💨',
           color: '#FF7043',
           counters: [
-            { id: 'carretera', name: 'Carretera', short: 'CARRETERA', label: 'Carretera' },
-            { id: 'piedras', name: 'Piedras', short: 'PIEDRAS', label: 'Piedras' }
+            { id: 'carretera', name: 'Carretera', short: 'CARRETERA', label: 'Carretera', price: 1 },
+            { id: 'piedras', name: 'Piedras', short: 'PIEDRAS', label: 'Piedras', price: 1 }
           ]
         },
         {
@@ -389,10 +389,10 @@ export const BUSINESSES = [
           icon: '🧽',
           color: '#7C4DFF',
           counters: [
-            { id: 'cnt2', name: '#2', short: '#2', label: '#2' },
-            { id: 'cnt3', name: '#3', short: '#3', label: '#3' },
-            { id: 'cnt4', name: '#4', short: '#4', label: '#4' },
-            { id: 'cnt5', name: '#5', short: '#5', label: '#5' }
+            { id: 'cnt2', name: '#2', short: '#2', label: '#2', price: 0.5 },
+            { id: 'cnt3', name: '#3', short: '#3', label: '#3', price: 1 },
+            { id: 'cnt4', name: '#4', short: '#4', label: '#4', price: 2 },
+            { id: 'cnt5', name: '#5', short: '#5', label: '#5 (Fichas)', price: 1 }
           ]
         },
         {
@@ -401,10 +401,10 @@ export const BUSINESSES = [
           icon: '🧽',
           color: '#E040FB',
           counters: [
-            { id: 'cnt2', name: '#2', short: '#2', label: '#2' },
-            { id: 'cnt3', name: '#3', short: '#3', label: '#3' },
-            { id: 'cnt4', name: '#4', short: '#4', label: '#4' },
-            { id: 'cnt5', name: '#5', short: '#5', label: '#5' }
+            { id: 'cnt2', name: '#2', short: '#2', label: '#2', price: 0.5 },
+            { id: 'cnt3', name: '#3', short: '#3', label: '#3', price: 1 },
+            { id: 'cnt4', name: '#4', short: '#4', label: '#4', price: 2 },
+            { id: 'cnt5', name: '#5', short: '#5', label: '#5 (Fichas)', price: 1 }
           ]
         },
         {
@@ -413,9 +413,9 @@ export const BUSINESSES = [
           icon: '🚿',
           color: '#00BCD4',
           counters: [
-            { id: 'o1', name: 'O1', short: 'O1', label: 'O1' },
-            { id: 'o2', name: 'O2', short: 'O2', label: 'O2' },
-            { id: 'o7', name: 'O7', short: 'O7', label: 'O7' }
+            { id: 'o1', name: 'O1', short: 'O1', label: 'O1', price: 4 },
+            { id: 'o2', name: 'O2', short: 'O2', label: 'O2', price: 5.9 },
+            { id: 'o7', name: 'O7', short: 'O7', label: 'O7', price: 6.5 }
           ]
         }
       ]
