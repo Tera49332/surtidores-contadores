@@ -413,8 +413,8 @@ export const BUSINESSES = [
           icon: '🚿',
           color: '#00BCD4',
           counters: [
-            { id: 'o1', name: 'O1', short: 'O1', label: 'O1', price: 4 },
-            { id: 'o2', name: 'O2', short: 'O2', label: 'O2', price: 5.9 },
+            { id: 'o1', name: 'O1', short: 'O1', label: 'O1', price: 5.9 },
+            { id: 'o2', name: 'O2', short: 'O2', label: 'O2', price: 4 },
             { id: 'o7', name: 'O7', short: 'O7', label: 'O7', price: 6.5 }
           ]
         }
