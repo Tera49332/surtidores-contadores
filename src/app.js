@@ -7,6 +7,7 @@ import { renderGasDeliveryPage } from './pages/gas-delivery.js';
 import { renderLavaderoRegisterPage } from './pages/lavadero-register.js';
 import { renderHistoryPage } from './pages/history.js';
 import { renderReportPage } from './pages/report.js';
+import { renderMaintenancePage } from './pages/maintenance.js';
 import { migrateLocalDataToFirebase } from './db.js';
 import { isAuthenticated, logout, isOperator, isAdmin } from './utils/session.js';
 
@@ -46,6 +47,10 @@ export function initApp() {
     <a href="#report" class="nav-item" data-target="report">
       <span class="nav-icon">📄</span>
       <span>Informes</span>
+    </a>
+    <a href="#maintenance" class="nav-item" data-target="maintenance">
+      <span class="nav-icon">🔧</span>
+      <span>Manten.</span>
     </a>
     <a href="javascript:void(0)" class="nav-item" id="navLogout" data-target="logout">
       <span class="nav-icon">🚪</span>
@@ -137,6 +142,9 @@ export function initApp() {
         break;
       case '#report':
         pageElement = await renderReportPage();
+        break;
+      case '#maintenance':
+        pageElement = await renderMaintenancePage();
         break;
       default:
         window.location.hash = isOperator() ? '#menu' : '#dashboard';

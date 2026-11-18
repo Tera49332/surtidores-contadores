@@ -551,3 +551,26 @@ export async function migrateLocalDataToFirebase() {
     console.error('Error during migration:', error);
   }
 }
+
+export async function getCuadresCombustible(businessId) {
+  try {
+    const bid = businessId || getActiveBusinessId() || 'estacion_33405';
+    if (isLocalMode) {
+      const data = localStorage.getItem(`${bid}_cuadres_combustible`);
+      const list = data ? JSON.parse(data) : [];
+      list.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return list;
+    } else {
+      const path = `businesses/${bid}/cuadres_combustible`;
+      const q = query(collection(db, path), orderBy('date', 'desc'));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(docSnap => {
+        const d = docSnap.data();
+        return { ...d, date: fromFirestoreDate(d.date) };
+      });
+    }
+  } catch (error) {
+    console.error('Error getting cuadres combustible:', error);
+    return [];
+  }
+}
