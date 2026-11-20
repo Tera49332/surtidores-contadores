@@ -146,9 +146,13 @@ export async function renderReportPage() {
     servicesDef.forEach(srv => {
       srv.counters.forEach(cntObj => {
         const cnt = cntObj.short || cntObj.name;
-        const initialVal = first.data?.[srv.name]?.[cnt] ?? 0;
-        const finalVal = last.data?.[srv.name]?.[cnt] ?? 0;
-        const diff = finalVal - initialVal;
+        const initialVal = (cnt === 'Diesel Nexa' && first.data?.[srv.name]?.['Diesel Nexa'] === undefined)
+          ? (first.data?.[srv.name]?.['Diesel e+ 10'] ?? 0)
+          : (first.data?.[srv.name]?.[cnt] ?? 0);
+        const finalVal = (cnt === 'Diesel Nexa' && last.data?.[srv.name]?.['Diesel Nexa'] === undefined)
+          ? (last.data?.[srv.name]?.['Diesel e+ 10'] ?? 0)
+          : (last.data?.[srv.name]?.[cnt] ?? 0);
+        const diff = finalVal < initialVal ? finalVal : (finalVal - initialVal);
         totalStationLiters += diff;
 
         const cStyle = getCounterStyle(srv, cntObj);

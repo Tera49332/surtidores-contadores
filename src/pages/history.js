@@ -29,21 +29,25 @@ function calculateReadingLitres(curr, prev, servicesDef) {
     srv.counters.forEach(cntObj => {
       const cnt = cntObj.short || cntObj.name;
       const unit = cntObj.unit || 'L';
-      const currVal = currData[srv.name]?.[cnt] ?? 0;
-      const prevVal = prev ? (prevData[srv.name]?.[cnt] ?? currVal) : currVal;
+      const isLegacyE10 = cnt === 'Diesel Nexa' && currData[srv.name]?.['Diesel Nexa'] === undefined && currData[srv.name]?.['Diesel e+ 10'] !== undefined;
+      const displayCnt = isLegacyE10 ? 'Diesel e+ 10' : cnt;
+      const currVal = isLegacyE10 ? (currData[srv.name]?.['Diesel e+ 10'] ?? 0) : (currData[srv.name]?.[cnt] ?? 0);
+      const prevVal = prev
+        ? (prevData[srv.name]?.[displayCnt] ?? prevData[srv.name]?.[cnt] ?? prevData[srv.name]?.['Diesel e+ 10'] ?? currVal)
+        : currVal;
       const diff = prev ? (currVal < prevVal ? currVal : (currVal - prevVal)) : 0;
       calleTotal += diff;
       stationTotal += diff;
 
       const cStyle = getCounterStyle(srv, cntObj);
 
-      calleBreakdown[srv.name].counters[cnt] = {
+      calleBreakdown[srv.name].counters[displayCnt] = {
         val: currVal,
         prevVal,
         diff,
         unit,
-        product: cntObj.product || '',
-        color: cStyle.color,
+        product: isLegacyE10 ? 'Diesel e+ 10' : (cntObj.product || ''),
+        color: isLegacyE10 ? '#c59b27' : cStyle.color,
         textColor: cStyle.textColor
       };
     });
@@ -724,15 +728,17 @@ function exportSingleReadingPdf(curr, prev, servicesDef, businessName) {
   servicesDef.forEach(srv => {
     srv.counters.forEach(cntObj => {
       const cnt = cntObj.short || cntObj.name;
-      const currVal = curr.data?.[srv.name]?.[cnt] ?? 0;
-      const prevVal = prev ? (prev.data?.[srv.name]?.[cnt] ?? currVal) : currVal;
+      const isLegacyE10 = cnt === 'Diesel Nexa' && curr.data?.[srv.name]?.['Diesel Nexa'] === undefined && curr.data?.[srv.name]?.['Diesel e+ 10'] !== undefined;
+      const displayCnt = isLegacyE10 ? 'Diesel e+ 10' : cnt;
+      const currVal = curr.data?.[srv.name]?.[displayCnt] ?? 0;
+      const prevVal = prev ? (prev.data?.[srv.name]?.[displayCnt] ?? prev.data?.[srv.name]?.[cnt] ?? prev.data?.[srv.name]?.['Diesel e+ 10'] ?? currVal) : currVal;
       const diff = prev ? (currVal < prevVal ? currVal : (currVal - prevVal)) : 0;
       totalStationLiters += diff;
 
       tableRows.push([
         srv.name,
-        cntObj.product || srv.product || '',
-        cnt,
+        isLegacyE10 ? 'Diesel e+ 10' : (cntObj.product || srv.product || ''),
+        displayCnt,
         prev ? `${prevVal.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} L` : '-',
         `${currVal.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} L`,
         prev ? `+${diff.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} L` : 'Base inicial'
