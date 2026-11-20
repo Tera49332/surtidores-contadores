@@ -152,8 +152,7 @@ export async function renderReportPage() {
         const finalVal = (cnt === 'Diesel Nexa' && last.data?.[srv.name]?.['Diesel Nexa'] === undefined)
           ? (last.data?.[srv.name]?.['Diesel e+ 10'] ?? 0)
           : (last.data?.[srv.name]?.[cnt] ?? 0);
-        const isReset = initialVal > 0 && finalVal < initialVal && ((initialVal - finalVal) > 1000 || finalVal < initialVal * 0.5);
-        const diff = isReset ? finalVal : (finalVal - initialVal);
+        const diff = finalVal - initialVal;
         totalStationLiters += diff;
 
         const cStyle = getCounterStyle(srv, cntObj);

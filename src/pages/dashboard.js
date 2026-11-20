@@ -245,7 +245,7 @@ export async function renderDashboard() {
         const unit = counterObj.unit || 'L';
         const val = currentReading?.data?.[service.name]?.[counterName] ?? 0;
         const prevVal = previousReading?.data?.[service.name]?.[counterName] ?? val;
-        const isReset = Boolean(previousReading && prevVal > 0 && val < prevVal && ((prevVal - val) > 1000 || val < prevVal * 0.5));
+        const isReset = Boolean(currentReading?.resetCalles?.includes(service.name));
         const diff = previousReading ? (isReset ? val : (val - prevVal)) : 0;
         calleDiffTotal += diff;
         stationTotalDiff += diff;

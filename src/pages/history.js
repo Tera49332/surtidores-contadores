@@ -35,7 +35,7 @@ function calculateReadingLitres(curr, prev, servicesDef) {
       const prevVal = prev
         ? (prevData[srv.name]?.[displayCnt] ?? prevData[srv.name]?.[cnt] ?? prevData[srv.name]?.['Diesel e+ 10'] ?? currVal)
         : currVal;
-      const isReset = Boolean(prev && prevVal > 0 && currVal < prevVal && ((prevVal - currVal) > 1000 || currVal < prevVal * 0.5));
+      const isReset = Boolean(curr?.resetCalles?.includes(srv.name));
       const diff = prev ? (isReset ? currVal : (currVal - prevVal)) : 0;
       calleTotal += diff;
       stationTotal += diff;
@@ -733,7 +733,7 @@ function exportSingleReadingPdf(curr, prev, servicesDef, businessName) {
       const displayCnt = isLegacyE10 ? 'Diesel e+ 10' : cnt;
       const currVal = curr.data?.[srv.name]?.[displayCnt] ?? 0;
       const prevVal = prev ? (prev.data?.[srv.name]?.[displayCnt] ?? prev.data?.[srv.name]?.[cnt] ?? prev.data?.[srv.name]?.['Diesel e+ 10'] ?? currVal) : currVal;
-      const isReset = Boolean(prev && prevVal > 0 && currVal < prevVal && ((prevVal - currVal) > 1000 || currVal < prevVal * 0.5));
+      const isReset = Boolean(curr?.resetCalles?.includes(srv.name));
       const diff = prev ? (isReset ? currVal : (currVal - prevVal)) : 0;
       totalStationLiters += diff;
 
