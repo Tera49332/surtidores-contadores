@@ -31,7 +31,7 @@ function calculateReadingLitres(curr, prev, servicesDef) {
       const unit = cntObj.unit || 'L';
       const currVal = currData[srv.name]?.[cnt] ?? 0;
       const prevVal = prev ? (prevData[srv.name]?.[cnt] ?? currVal) : currVal;
-      const diff = prev ? (currVal - prevVal) : 0;
+      const diff = prev ? (currVal < prevVal ? currVal : (currVal - prevVal)) : 0;
       calleTotal += diff;
       stationTotal += diff;
 
@@ -726,7 +726,7 @@ function exportSingleReadingPdf(curr, prev, servicesDef, businessName) {
       const cnt = cntObj.short || cntObj.name;
       const currVal = curr.data?.[srv.name]?.[cnt] ?? 0;
       const prevVal = prev ? (prev.data?.[srv.name]?.[cnt] ?? currVal) : currVal;
-      const diff = prev ? (currVal - prevVal) : 0;
+      const diff = prev ? (currVal < prevVal ? currVal : (currVal - prevVal)) : 0;
       totalStationLiters += diff;
 
       tableRows.push([

@@ -245,7 +245,8 @@ export async function renderDashboard() {
         const unit = counterObj.unit || 'L';
         const val = currentReading?.data?.[service.name]?.[counterName] ?? 0;
         const prevVal = previousReading?.data?.[service.name]?.[counterName] ?? val;
-        const diff = previousReading ? (val - prevVal) : 0;
+        const isReset = Boolean(previousReading && val < prevVal);
+        const diff = previousReading ? (isReset ? val : (val - prevVal)) : 0;
         calleDiffTotal += diff;
         stationTotalDiff += diff;
 
@@ -253,7 +254,9 @@ export async function renderDashboard() {
 
         let diffBadge = '';
         if (previousReading) {
-          if (diff > 0) {
+          if (isReset) {
+            diffBadge = `<span title="Nuevo contador / reinicio" style="color: #005B8E; font-size: 0.82rem; background: #e3f2fd; border: 1px solid #90caf9; padding: 3px 8px; border-radius: 6px; font-weight: 700;">+${diff.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${unit} 🔄</span>`;
+          } else if (diff > 0) {
             diffBadge = `<span style="color: var(--success); font-size: 0.85rem; background: var(--success-glow); padding: 3px 8px; border-radius: 6px; font-weight: 700;">+${diff.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${unit}</span>`;
           } else if (diff < 0) {
             diffBadge = `<span style="color: var(--error); font-size: 0.85rem; background: var(--error-glow); padding: 3px 8px; border-radius: 6px; font-weight: 700;">-${Math.abs(diff).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${unit}</span>`;
